@@ -1,0 +1,70 @@
+<beans:beans xmlns="http://www.springframework.org/schema/security"
+	xmlns:beans="http://www.springframework.org/schema/beans" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans
+                            http://www.springframework.org/schema/beans/spring-beans-4.0.xsd
+                            http://www.springframework.org/schema/security
+                            http://www.springframework.org/schema/security/spring-security-4.0.xsd">
+
+	<!-- JDBC -->
+	<authentication-manager alias="authMan">
+		<authentication-provider user-service-ref="jdbcUserService">
+			<password-encoder hash="sha" />
+			<!-- jdbc-user-service data-source-ref="dataSource" users-by-username-query="SELECT
+				username,password, enabled FROM users WHERE username=?" authorities-by-username-query="SELECT
+				username, role FROM user_role WHERE username =? " / -->
+		</authentication-provider>
+	</authentication-manager>
+
+	<beans:bean id="jdbcUserService"
+		class="edu.rit.teamwin.web.utils.JdbcUserDetailsManager">
+		<beans:property name="dataSource" ref="dataSource" />
+		<beans:property name="authenticationManager" ref="authMan" />
+		<beans:property name="authoritiesByUsernameQuery"
+			value="select username,role from user_role where username = ?" />
+	</beans:bean>
+
+	<!-- Make resources not need security -->
+	<http auto-config="true" security="none" pattern="/css/**" />
+	<http auto-config="true" security="none" pattern="/js/**" />
+	<http auto-config="true" security="none" pattern="/images/**" />
+
+	<http auto-config="true" security="none" disable-url-rewriting="true" pattern="/login*" />
+	<http auto-config="true" security="none" pattern="/signup*" />
+
+    <!-- Paths that need securing -->
+    <http auto-config="false" entry-point-ref="loginUrlAuthenticationEntryPoint" use-expressions="true">
+    	<intercept-url pattern="/resources/*" access="denyAll" />
+        <intercept-url pattern="/userManagement*" access="hasRole('ROLE_ADMIN')" />
+        <intercept-url pattern="/updateUser*" access="hasRole('ROLE_USER')" />
+        <intercept-url pattern="/userDetails*" access="hasRole('ROLE_USER')" />
+        <intercept-url pattern="/profile*" access="hasRole('ROLE_USER')" />
+        <intercept-url pattern="/**" access="hasRole('ROLE_USER')" />
+
+		<logout logout-success-url="/login?logout" />
+
+		<custom-filter position="FORM_LOGIN_FILTER" ref="trackingUsernamePasswordAuthenticationFilter" />
+	</http>
+
+	<beans:bean id="loginUrlAuthenticationEntryPoint" class="org.springframework.security.web.authentication.LoginUrlAuthenticationEntryPoint">
+		<beans:constructor-arg value="/login" />
+	</beans:bean>
+
+	<beans:bean id="trackingUsernamePasswordAuthenticationFilter"
+		class="edu.rit.teamwin.web.utils.TrackingUsernamePasswordAuthenticationFilter">
+		<beans:property name="authenticationManager" ref="authMan" />
+		<beans:property name="authenticationFailureHandler" ref="failureHandler" />
+		<beans:property name="authenticationSuccessHandler" ref="successHandler" />
+		<beans:property name="usernameParameter" value="username" />
+		<beans:property name="passwordParameter" value="password" />
+	</beans:bean>
+
+	<beans:bean id="successHandler" class="org.springframework.security.web.authentication.SavedRequestAwareAuthenticationSuccessHandler">
+		<beans:property name="defaultTargetUrl" value="/profile" />
+		<beans:property name="alwaysUseDefaultTargetUrl" value="true" />
+	</beans:bean>
+	<beans:bean id="failureHandler" class="org.springframework.security.web.authentication.SimpleUrlAuthenticationFailureHandler">
+		<beans:property name="defaultFailureUrl" value="/login?authfailed" />
+	</beans:bean>
+
+</beans:beans>
+

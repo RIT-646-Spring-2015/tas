@@ -15,13 +15,12 @@ import org.springframework.web.util.Log4jConfigListener;
  * detected by Spring on server startup. This class's
  * {@link WebApplicationInitializer#onStartup(ServletContext) onStartup} method
  * essentially replaces the conventional <tt>web.xml</tt> file.
- * 
+ *
  * @author Alex Aiezza
  *
  */
 public class WebInit implements WebApplicationInitializer
 {
-
     @Override
     public void onStartup( final ServletContext container ) throws ServletException
     {
@@ -44,7 +43,7 @@ public class WebInit implements WebApplicationInitializer
         servletContext.register( ServletConfig.class );
 
         // Further configures the servlet context
-        ServletRegistration.Dynamic dispatcher = container.addServlet( "tas-dispatcher",
+        final ServletRegistration.Dynamic dispatcher = container.addServlet( "tas-dispatcher",
             new DispatcherServlet( servletContext ) );
         dispatcher.setLoadOnStartup( 1 );
         dispatcher.addMapping( "/" );

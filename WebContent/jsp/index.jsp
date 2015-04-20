@@ -8,7 +8,7 @@
 <html>
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
-<title>Topic Approval System</title>
+<title>TAS | Topic Approval System</title>
 
 <link rel="icon" type="image/png" href="/${imagePath}/images/....png" />
 <link rel="stylesheet" type="text/css"

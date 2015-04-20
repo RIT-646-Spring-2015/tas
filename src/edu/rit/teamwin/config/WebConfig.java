@@ -4,14 +4,15 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
+import org.springframework.context.annotation.ComponentScan.Filter;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.FilterType;
 import org.springframework.stereotype.Controller;
+import org.springframework.stereotype.Service;
 import org.springframework.web.servlet.config.annotation.EnableWebMvc;
 import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurerAdapter;
 import org.springframework.web.servlet.view.InternalResourceViewResolver;
-
-import edu.rit.teamwin.web.TopicApprovalController;
 
 /**
  * <p>
@@ -23,11 +24,13 @@ import edu.rit.teamwin.web.TopicApprovalController;
  * instantiations of other Component beans. For instance, the application's
  * {@link Controller controllers}.
  * </p>
- * 
+ *
  * @author Alex Aiezza
  *
  */
-@ComponentScan ( basePackageClasses = { TopicApprovalController.class } )
+@ComponentScan (
+    basePackages = "edu.rit.teamwin.web",
+    excludeFilters = { @Filter ( type = FilterType.ANNOTATION, value = Service.class ) } )
 @Configuration
 @EnableWebMvc
 public class WebConfig extends WebMvcConfigurerAdapter
@@ -35,7 +38,7 @@ public class WebConfig extends WebMvcConfigurerAdapter
     private final Log LOG = LogFactory.getLog( getClass() );
 
     @Override
-    public void addResourceHandlers( ResourceHandlerRegistry registry )
+    public void addResourceHandlers( final ResourceHandlerRegistry registry )
     {
         registry.addResourceHandler( "/css/**" ).addResourceLocations( "/css/" );
         registry.addResourceHandler( "/images/**" ).addResourceLocations( "/images/" );
@@ -51,4 +54,5 @@ public class WebConfig extends WebMvcConfigurerAdapter
         irvr.setSuffix( ".jsp" );
         return irvr;
     }
+    
 }
