@@ -1,0 +1,15 @@
+@charset "UTF-8";
+
+body {
+	font-family: Verdana;
+	font-size: 1.8em;
+}
+
+.big {
+	font-size: 2.0em;
+	font-weight: bold;
+}
+
+.left-indent {
+	padding-left: 25px;
+}
