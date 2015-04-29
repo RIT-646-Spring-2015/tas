@@ -1,0 +1,53 @@
+@CHARSET "UTF-8";
+
+form {
+    display: inline-block;
+}
+
+form p {
+    padding: 2px;
+    margin: 0;
+    width: 100%;
+    text-align: right;
+}
+
+form p input[type=text],
+form p input[type=password],
+form p input[type=email],
+form p input[type=number],
+form p input[type=file],
+form p textarea {
+    float: right;
+    width: 14em;
+    padding-left: 5px;
+    margin-left: 5px;
+}
+
+form p textarea {
+    /*resize: none;*/
+    max-width: 80%;
+}
+
+form p textarea,
+form p input,
+form p label {
+    vertical-align: middle;
+}
+
+div#formButtons {
+    display: inline;
+}
+
+p.error {
+    color: red;
+    font-weight: bold;
+}
+
+p.message {
+    background-color: lightblue;
+    font-weight: bold;
+}
+
+p.error, p.message {
+    text-align: center;
+}

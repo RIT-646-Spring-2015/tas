@@ -1,0 +1,27 @@
+@CHARSET "UTF-8";
+
+.total {
+    font-size: 2em;
+}
+
+h2.total {
+    margin-left: 50px;
+}
+
+input#cartQuantity {
+    width: 50px;
+}
+
+tr#anEmptyCart {
+    font-weight: bold;
+    text-align: center;
+    font-size: 3em;
+}
+
+tr#anEmptyCart:hover, tr#anEmptyCart:hover td {
+    background: transparent;
+}
+
+table {
+    width: 100%;
+}
