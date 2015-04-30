@@ -1,12 +1,12 @@
 <?php
 
-require 'MemberDetails.class.php';
+require '../../UserDetails.class.php';
 
-final class Member extends MemberDetails
+final class User extends UserDetails
 {
-    public static function userFromForm( MemberForm $user )
+    public static function userFromForm( UserForm $user )
     {
-        return new Member( $user->getUsername(), $user->getPassword(),
+        return new User( $user->getUsername(), $user->getPassword(),
                 $user->getFirst_name(), $user->getLast_name(), $user->getEmail(), $user->getDate_joined(),
                 $user->getLast_online(), $user->isEnabled(), $user->getAuthorities() );
     }

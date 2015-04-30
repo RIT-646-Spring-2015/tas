@@ -1,6 +1,6 @@
 <?php
 
-abstract class MemberDetails
+abstract class UserDetails
 {
     protected $username;
     protected $password;
@@ -13,7 +13,7 @@ abstract class MemberDetails
     protected $authorities;
 
     /**
-     * Constructs a new member object
+     * Constructs a new user object
      *
      * @param string $username
      *            the user's unique username.
@@ -129,7 +129,7 @@ abstract class MemberDetails
     {
         return $this->authorities;
     }
-
+    
     public function toString()
     {
         return sprintf( "%s (%s %s) <%s>", $this->username, $this->firstname, $this->lastname, 

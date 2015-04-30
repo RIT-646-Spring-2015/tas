@@ -80,7 +80,7 @@ CREATE TABLE IF NOT EXISTS `Topic` (
 -- -----------------------------------------------------
 -- Table `UserTopic`
 -- -----------------------------------------------------
-DROP TABLE IF EXISTS `UserTopic` ;
+DROP TABLE IF EXISTS `UserTopic`;
 
 CREATE TABLE IF NOT EXISTS `UserTopic` (
   `Username` VARCHAR(20) NOT NULL,
@@ -99,7 +99,7 @@ CREATE TABLE IF NOT EXISTS `UserTopic` (
 -- -----------------------------------------------------
 -- Table `Course`
 -- -----------------------------------------------------
-DROP TABLE IF EXISTS `Course` ;
+DROP TABLE IF EXISTS `Course`;
 
 CREATE TABLE IF NOT EXISTS `Course` (
   `Number` VARCHAR(15) NOT NULL,
@@ -110,7 +110,7 @@ CREATE TABLE IF NOT EXISTS `Course` (
 -- -----------------------------------------------------
 -- Table `UserCourse`
 -- -----------------------------------------------------
-DROP TABLE IF EXISTS `UserCourse` ;
+DROP TABLE IF EXISTS `UserCourse`;
 
 CREATE TABLE IF NOT EXISTS `UserCourse` (
   `Username` VARCHAR(20) NOT NULL,
@@ -122,6 +122,27 @@ CREATE TABLE IF NOT EXISTS `UserCourse` (
     ON UPDATE NO ACTION,
   FOREIGN KEY (`CourseNumber`)
     REFERENCES `Course` (`Number`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION);
+
+
+
+-- -----------------------------------------------------
+-- Table `UserCourseUserTopic`
+-- -----------------------------------------------------
+DROP TABLE IF EXISTS `UserCourseUserTopic`;
+
+CREATE TABLE IF NOT EXISTS `UserCourseUserTopic` (
+  `Username` VARCHAR(20) NOT NULL,
+  `UserTopicName` VARCHAR(60) NOT NULL,
+  `UserCourseNumber` VARCHAR(15) NOT NULL,
+  PRIMARY KEY (`Username`, `UserTopicName`, `UserCourseNumber`),
+  FOREIGN KEY (`Username` , `UserTopicName`)
+    REFERENCES `UserTopic` (`Username` , `TopicName`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION,
+  FOREIGN KEY (`Username` , `UserCourseNumber`)
+    REFERENCES `UserCourse` (`Username` , `CourseNumber`)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION);
 

@@ -1,32 +1,19 @@
 <?php
-// Member Library
-require_once PROJECT_ROOT . '/oop/Member.class.php';
-require_once PROJECT_ROOT . '/oop/MemberForm.class.php';
-require_once PROJECT_ROOT . '/oop/SignUpFormValidator.class.php';
-require_once PROJECT_ROOT . '/oop/MemberServiceManager.class.php';
-
-// Product Library
-require_once PROJECT_ROOT . '/oop/Product.class.php';
-require_once PROJECT_ROOT . '/oop/ProductForm.class.php';
-require_once PROJECT_ROOT . '/oop/ProductFormValidator.class.php';
-require_once PROJECT_ROOT . '/oop/ProductServiceManager.class.php';
-
-// I can move this to the .htaccess file in ~/Sites/756/project1 if I want to
-//   php_flag session.auto_start on
-session_start();
 
 /*
  * * * * * * * * * * *
  * Load in properties
- * * * * * * * * * * */
-$props = parse_ini_file( PROJECT_ROOT . '/resources/project1.properties', true );
+ * * * * * * * * * *
+ */
+$props = parse_ini_file( realpath( 'resources/topic-selection.properties' ), true );
 
 /*
  * * * * * * * * * *
  * Define Constants
- * * * * * * * * * */
+ * * * * * * * * *
+ */
 // TODO: Installation bash script?
-define( 'PROJECT_ROOT', $props['tas']['BASE_FOLDER'] );
+define( 'PROJECT_ROOT', realpath( '.' ) );
 define( 'SITE_ROOT', $props['tas']['SITE_CONTEXT'] );
 define( 'PROFILE_LOC', SITE_ROOT . '/user_management/profile.php' );
 
@@ -38,22 +25,46 @@ define( 'SALT', $props['other']['SALT'] );
 // define( 'MIN_SALE_ITEMS', $props['product-database']['MIN_SALE_ITEMS'] );
 // define( 'MAX_SALE_ITEMS', $props['product-database']['MAX_SALE_ITEMS'] );
 
-define( 'TAS_DB', $props['tas-database']['dbname'] );
+define( 'TAS_DB', realpath( $props['tas-database']['dbname'] ) );
 define( 'NEW_USER_ENABLED', $props['tas-database']['NEW_USER_ENABLED'] );
-$TAS_DB_MANAGER = MemberServiceManager::getInstance();
 define( 'USERMANAGEMENT_OPTION', '<a id="userManagementOption" href="' . SITE_ROOT . '/user_management">Manage Users</a>' );
-define( 'TOPICMANAGEMENT_OPTION', '<a id="topicManagementOption" href="' . SITE_ROOT . '/topic_management.php">Manage Topics</a>' );
+define( 'TOPICMANAGEMENT_OPTION', '<a id="topicManagementOption" href="' . SITE_ROOT . '/topic_management.php%s">Manage Topics</a>' );
 define( 'COURSEMANAGEMENT_OPTION', '<a id="courseManagementOption" href="' . SITE_ROOT . '/course_management.php">Manage Courses</a>' );
 define( 'LOGIN_OPTION', '<a id="loginOption" href="' . SITE_ROOT . '/login.php">Login</a>' );
 define( 'LOGOUT_OPTION', '<a id="logoutOption" href="' . SITE_ROOT . '/user_management/logout.php">Logout</a>' );
 // define( 'VIEW_CART_OPTION', '<a id="viewCartOption" href="' . SITE_ROOT . '/cart.php">View Cart</a>' );
 // define( 'CONTINUE_SHOPPING_OPTION', '<a id="continueShoppingOption" href="' . SITE_ROOT . '/">Continue Shopping</a>' );
 
+// Database Manager
+require_once PROJECT_ROOT . '/oop/data/TASServiceManager.class.php';
+
+// User Library
+require_once PROJECT_ROOT . '/oop/data/entity/User.class.php';
+require_once PROJECT_ROOT . '/oop/UserForm.class.php';
+require_once PROJECT_ROOT . '/oop/SignUpFormValidator.class.php';
+
+// Topic Library
+require_once PROJECT_ROOT . '/oop/data/entity/Topic.class.php';
+require_once PROJECT_ROOT . '/oop/TopicForm.class.php';
+require_once PROJECT_ROOT . '/oop/TopicFormValidator.class.php';
+
+// Course Library
+require_once PROJECT_ROOT . '/oop/data/entity/Course.class.php';
+require_once PROJECT_ROOT . '/oop/CourseForm.class.php';
+require_once PROJECT_ROOT . '/oop/CourseFormValidator.class.php';
+
+$TAS_DB_MANAGER = TASServiceManager::getInstance();
+
+
+// I can move this to the .htaccess file in ~/Sites/756/project1 if I want to
+// php_flag session.auto_start on
+session_start();
 
 /*
  * * * * * * * * * *
  * Helper Functions
- * * * * * * * * * */
+ * * * * * * * * *
+ */
 
 /**
  * Redirect user if they are logged in.
@@ -83,32 +94,31 @@ function redirectIfLoggedOut( $params = '' )
 }
 
 /**
- *
  */
 function getActingUsername( $messageOnFail )
 {
     global $TAS_DB_MANAGER;
-
+    
     if ( isset( $_GET['username'] ) )
     {
         $username = $_GET['username'];
-
+        
         // Secure Area!
         if ( $TAS_DB_MANAGER->getCurrentUser()->getUsername() != $username )
         {
-            try {
+            try
+            {
                 $TAS_DB_MANAGER->failIfNotAdmin( $messageOnFail );
             } catch ( InadequateRightsException $e )
             {
                 die( $e->getMessage() );
             }
         }
-    }
-    else
+    } else
     {
         $username = $TAS_DB_MANAGER->getCurrentUser()->getUsername();
     }
-
+    
     return $username;
 }
 
@@ -124,7 +134,7 @@ function clean_input( $data, $currency = false )
     $data = trim( $data );
     $data = stripslashes( $data );
     $data = htmlspecialchars( $data );
-
+    
     if ( $currency )
     {
         $data = preg_replace( '/[\$\.]/', "", $data );
@@ -136,7 +146,8 @@ function clean_input( $data, $currency = false )
 /*
  * * * * * * * * *
  * Page Templates
- * * * * * * * * */
+ * * * * * * * *
+ */
 
 /**
  * Head Template
@@ -156,7 +167,7 @@ function templateHead( $title = "Page", $styles, $scripts )
 <head>
 <meta charset="UTF-8">
 
-<title>Project 1 | '.$title.'</title>
+<title>Project 1 | ' . $title . '</title>
 <meta name="description" content="Project 1 | E-Commerce site">
 <meta name="author" content="Alex Aiezza">
 
@@ -207,44 +218,43 @@ function templateHead( $title = "Page", $styles, $scripts )
  *            administrator, the option will not be presented.
  * @return string template header for the e-commerce site
  */
-function templateHeader(
-    $linkProfile = false,
-    $logoutOption = false,
-    $productManagementOption = false,
-    $userManagementOption = false,
-    $viewCartOption = false,
-    $continueShoppingOption = false,
-    $loginIfLoggedOut = false )
+function templateHeader( $linkProfile = false, $logoutOption = false, $managementOption = false, 
+        $viewCartOption = false, $continueShoppingOption = false, $loginIfLoggedOut = false )
 {
-    global $MEMBER_DB_MANAGER;
-
+    global $TAS_DB_MANAGER;
+    
     $header = "<div id=\"header\"";
     $header .= $linkProfile ? "class=\"linkProfile\"" : "";
     $header .= "></div>";
-
-    if ( $MEMBER_DB_MANAGER->getCurrentUser() == null )
+    
+    if ( ( $TAS_DB_MANAGER->getCurrentUser() = $user ) == null )
     {
-        $linkProfile = $logoutOption = $productManagementOption =
-        $userManagementOption = $viewCartOption =
-        $continueShoppingOption = false;
-    }
-    else $loginIfLoggedOut = false;
-
+        $linkProfile = $logoutOption = $managementOption = $viewCartOption = $continueShoppingOption = false;
+    } else
+        $loginIfLoggedOut = false;
+    
     if ( $loginIfLoggedOut )
         $header .= LOGIN_OPTION;
-        
+    
     if ( $logoutOption )
         $header .= LOGOUT_OPTION;
-
-    if ( $userManagementOption && $MEMBER_DB_MANAGER->isAdmin() )
-        $header .= USERMANAGEMENT_OPTION;
-
-    if ( $productManagementOption && $MEMBER_DB_MANAGER->isAdmin() )
-        $header .= PRODUCTMANAGEMENT_OPTION;
-
+    
+    if ( $managementOption )
+    {
+        if ( $TAS_DB_MANAGER->isTA() )
+        {
+            $header .= sprintf( TOPICMANAGEMENT_OPTION, );
+        } else if ( $TAS_DB_MANAGER->isAdmin() || $TAS_DB_MANAGER->isProfessor() )
+        {
+            $header .= USERMANAGEMENT_OPTION;
+            $header .= COURSEMANAGEMENT_OPTION;
+            $header .= TOPICMANAGEMENT_OPTION;
+        }
+    }
+    
     if ( $viewCartOption )
         $header .= VIEW_CART_OPTION;
-
+    
     if ( $continueShoppingOption )
         $header .= CONTINUE_SHOPPING_OPTION;
     

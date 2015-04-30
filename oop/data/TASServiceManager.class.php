@@ -1,11 +1,27 @@
 <?php
-require_once 'PreparedStatementSetter.class.php';
+require_once 'util/PreparedStatementSetter.class.php';
 require_once 'exceptions/UsernameNotFoundException.class.php';
 require_once 'exceptions/InadequateRightsException.class.php';
 
-class MemberServiceManager
+class TASServiceManager
 {
 
+    /**
+     */
+    const SELECT_ALL_USERS_SQL = 'SELECT User.Username, Password, Enabled, FirstName, LastName, Email, DateJoined, LastOnline, RoleName FROM User LEFT JOIN UserRole ON User.Username=UserRole.Username';
+    
+    /**
+     */
+    const SELECT_ALL_ROLES_SQL = 'SELECT Name FROM Role';
+
+    /**
+     */
+    const SELECT_ALL_COURSES_SQL = 'SELECT Number, Name, Username FROM Course LEFT JOIN UserCourse ON Course.Number=UserCourse.CourseNumber';
+    
+    /**
+     */
+    const SELECT_ALL_TOPICS_SQL = 'SELECT Name, Link, SubmissionDate, Blacklisted, Status FROM Topic';
+    
     /**
      */
     const QUERY_NUMBER_OF_USERS_SQL = 'SELECT COUNT(username) FROM users WHERE username = ?';
@@ -13,14 +29,6 @@ class MemberServiceManager
     /**
      */
     const QUERY_USER_BY_USERNAME = 'SELECT users.username, password, enabled, first_name, last_name, email, date_joined, last_online, role FROM users LEFT JOIN user_role ON users.username=user_role.username WHERE users.username = ?';
-
-    /**
-     */
-    const SELECT_ALL_USERS_SQL = 'SELECT users.username, password, enabled, first_name, last_name, email, date_joined, last_online, role FROM users LEFT JOIN user_role ON users.username=user_role.username';
-
-    /**
-     */
-    const SELECT_ALL_ROLES_SQL = 'SELECT role FROM roles';
 
     /**
      */
