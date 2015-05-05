@@ -1,5 +1,5 @@
 <?php
-include './lib/lib_tas.php';
+require_once '../lib/lib_tas.php';
 
 redirectIfLoggedOut();
 
@@ -14,21 +14,14 @@ if ( !$TAS_DB_MANAGER->isAdmin() )
 <html lang="EN">
 
 <?php
-echo templateHead( "Admin", array ( 'css/managementStyle.css' ), 
-        array ( 'js/lib/jquery.tablesorter.js', 'js/lib/underscore-min.js',
-                        "//code.jquery.com/ui/1.11.3/jquery-ui.min.js",
-                        'js/lib/jquery.formatCurrency-1.4.0.min.js',
-                        'js/PaginationWidget.js',
-                        'js/ProductManagementWidget.js', 'js/FormWidget.js' ) );
-
+echo templateHead( "Course Management", array ( 'css/managementStyle.css' ), 
+        array ( 'js/lib/jquery.tablesorter.js', 'js/lib/underscore-min.js', 
+                        'js/CourseManagementWidget.js' ) );
 ?>
 
 <body>
-
-    <?= templateHeader( true, true )?>
-    <div id="content">
-        <div id="admin"></div>
-    </div>
+    <?= templateHeader( true, true, true, false, true )?>
+    <div id="content"></div>
 </body>
 
 </html>

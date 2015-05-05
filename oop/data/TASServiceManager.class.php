@@ -3,6 +3,10 @@ require_once 'util/PreparedStatementSetter.class.php';
 require_once 'exceptions/UsernameNotFoundException.class.php';
 require_once 'exceptions/InadequateRightsException.class.php';
 
+require_once 'entity/mapper/UserMapper.class.php';
+require_once 'entity/mapper/CourseMapper.class.php';
+require_once 'entity/mapper/TopicMapper.class.php';
+
 class TASServiceManager
 {
 
@@ -249,7 +253,12 @@ class TASServiceManager
 
     public function getUsers()
     {
-        return $this->extractData( $this->getDB()->query( self::SELECT_ALL_USERS_SQL ) );
+        return UserMapper::extractData( $this->getDB()->query( self::SELECT_ALL_USERS_SQL ) );
+    }
+
+    public function getCourses()
+    {
+        return CourseMapper::extractData( $this->getDB()->query( self::SELECT_ALL_COURSES_SQL ) );
     }
 
     public function getAvailableAuthorities()
@@ -325,7 +334,7 @@ class TASServiceManager
         
         $result = $stmt->execute();
         
-        $users = self::extractData( $result );
+        $users = UserMapper::extractData( $result );
         
         if ( count( $users ) == 0 )
         {
@@ -333,42 +342,6 @@ class TASServiceManager
         }
         
         return $users[$username];
-    }
-
-    private static function mapRow( $rs )
-    {
-        $roles = array ( $rs['RoleName'] );
-        
-        $user = new User( $rs['Username'], $rs['Password'], $rs['FirstName'], $rs['LastName'], 
-                $rs['Email'], $rs['DateJoined'], $rs['LastOnline'], $rs['Enabled'], $roles );
-        
-        return $user;
-    }
-
-    private static function extractData( $rs )
-    {
-        $results = array ();
-        
-        while ( $res = $rs->fetchArray( SQLITE3_ASSOC ) )
-        {
-            if ( !isset( $res['Username'] ) )
-                continue;
-            
-            $user = self::mapRow( $res );
-            
-            if ( array_key_exists( $user->getUsername(), $results ) )
-            {
-                $inUser = &$results[$user->getUsername()];
-                
-                $auths = &$inUser->getAuthorities();
-                $auths = array_merge( $auths, $user->getAuthorities() );
-            } else
-            {
-                $results[$user->getUsername()] = $user;
-            }
-        }
-        
-        return $results;
     }
 }
 ?>

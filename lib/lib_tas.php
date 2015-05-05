@@ -1,7 +1,6 @@
 <?php
 
-// TODO: Installation bash script?
-define( 'PROJECT_ROOT', realpath( '/home/axa9070/Sites/646/tas/' ) );
+define( 'PROJECT_ROOT', realpath( dirname(__FILE__) . '/../' ) );
 
 
 /*

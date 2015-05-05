@@ -54,7 +54,7 @@ redirectIfLoggedIn();
 <html lang="EN">
 
 <?php
-echo templateHead( "Login", array ( "css/formStyle.css" ), array () );
+echo templateHead( "TAS | Topic Approval System | Login", array ( "css/formStyle.css" ), array () );
 ?>
 
 <body>

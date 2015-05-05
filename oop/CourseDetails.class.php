@@ -7,23 +7,23 @@ abstract class CourseDetails
 
     protected $name;
 
-    protected $usersInvolved;
+    protected $enrolled;
 
     /**
-     * Constructs a new product object
+     * Constructs a new course object
      *
      * @param string $number
-     *            the product's unique productId.
+     *            the course's unique course number.
      * @param string $name
-     *            the product's name.
-     * @param array $usersInvolved
-     *            the product's description.
+     *            the course's name.
+     * @param array $enrolled
+     *            the usernames enrolled in this course.
      */
-    public function __construct( $number, $name, $usersInvolved )
+    public function __construct( $number, $name, $enrolled = array() )
     {
         $this->number = $number;
         $this->name = $name;
-        $this->usersInvolved = $usersInvolved;
+        $this->enrolled = $enrolled;
     }
 
     /**
@@ -49,11 +49,11 @@ abstract class CourseDetails
     /**
      * Get the users involved in this course;
      *
-     * @return the users involved in this course;
+     * @return the usernames enrolled in this course;
      */
-    public function getUsersInvolved()
+    public function getEnrolled()
     {
-        return $this->usersInvolved;
+        return $this->enrolled;
     }
 
     public function toString()

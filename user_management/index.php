@@ -20,7 +20,7 @@ echo templateHead( 'User Management', array ( 'css/managementStyle.css' ),
 ?>
 
 <body>
-    <?= templateHeader(true, true)?>
+    <?= templateHeader( true, true, true, true )?>
     <div id="content"></div>
 </body>
 

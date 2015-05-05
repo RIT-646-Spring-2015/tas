@@ -103,7 +103,7 @@ DROP TABLE IF EXISTS `Course`;
 
 CREATE TABLE IF NOT EXISTS `Course` (
   `Number` VARCHAR(15) NOT NULL,
-  `Name` VARCHAR(30) NOT NULL,
+  `Name` VARCHAR(60) NOT NULL,
   PRIMARY KEY (`Number`));
 
 
@@ -181,5 +181,13 @@ BEGIN TRANSACTION;
 INSERT INTO `Status` (`Name`) VALUES ('SUBMITTED');
 INSERT INTO `Status` (`Name`) VALUES ('APPROVED');
 INSERT INTO `Status` (`Name`) VALUES ('REJECTED');
+
+COMMIT;
+
+-- -----------------------------------------------------
+-- Data for table `Course`
+-- -----------------------------------------------------
+BEGIN TRANSACTION;
+INSERT INTO `Course` (`Number`, `Name`) VALUES ('101-01', 'Introduction to Web Technologies');
 
 COMMIT;
