@@ -13,6 +13,8 @@ class PreparedStatementSetter
         {
             printf( 'Fail Whale: %s', $e->getMessage() );
         }
+        
+        $stmt->close();
 
         return $result;
     }

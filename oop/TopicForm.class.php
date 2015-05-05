@@ -1,18 +1,16 @@
 <?php
+include_once 'TopicDetails.class.php';
 
-include_once 'ProductDetails.class.php';
-
-final class ProductForm extends ProductDetails
+final class TopicForm extends TopicDetails
 {
-    public function __construct( $productId, $name, $description, $price, $quantity, $onSale,
-        $sale, $imagePath )
+
+    public function __construct( $name, $link, $submissionDate, $blacklisted, $status )
     {
-        parent::__construct( $productId, $name, $description, $price, $quantity, $onSale,
-        $sale, $imagePath );
+        parent::__construct( $name, $link, $submissionDate, $blacklisted, $status );
     }
 
     /**
-     * Set the product's name.
+     * Set the topic's name.
      */
     public function setName( $name )
     {
@@ -20,51 +18,35 @@ final class ProductForm extends ProductDetails
     }
 
     /**
-     * Set the product's description.
+     * Set the topic's link.
      */
-    public function setDescription( $description )
+    public function setLink( $link )
     {
-        $this->description = $description;
+        $this->link = $link;
     }
 
     /**
-     * Set the product's price.
+     * Set the topic submission date.
      */
-    public function setPrice( $price )
+    public function setSubmissionDate( $submissionDate )
     {
-        $this->price = $price;
+        $this->submissionDate = $submissionDate;
     }
 
     /**
-     * Set the product's quantity.
+     * Set whether or not the topic is blacklisted.
      */
-    public function setQuantity( $quantity )
+    public function setBlacklisted( $blacklisted )
     {
-        $this->quantity = $quantity;
-    }
-    
-    /**
-     * Set whether the product is one sale.
-     */
-    public function setOnSale( $onSale )
-    {
-        $this->onSale = $onSale;
+        $this->blacklisted = $blacklisted;
     }
 
     /**
-     * Set the product's sale price.
+     * Set the topic status
      */
-    public function setSalePrice( $sale )
+    public function setStatus( $status )
     {
-        $this->sale = $sale;
-    }
-
-    /**
-     * Set the product's image path.
-     */
-    public function setImagePath( $imagePath )
-    {
-        $this->imagePath = $imagePath;
+        $this->status = $status;
     }
 }
 ?>

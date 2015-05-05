@@ -1,19 +1,19 @@
 <?php
-require_once '../lib/lib_project1.php';
+require_once '../lib/lib_tas.php';
 
 redirectIfLoggedOut();
 
 $username = $_POST['username'];
 
-$user = $MEMBER_DB_MANAGER->loadMemberByUsername( $username );
+$user = $TAS_DB_MANAGER->loadUserByUsername( $username );
 
     $result['username'] = $user->getUsername();
-    $result['first_name'] = $user->getFirstName();
-    $result['last_name'] = $user->getLastName();
+    $result['firstName'] = $user->getFirstName();
+    $result['lastName'] = $user->getLastName();
     $result['email'] = $user->getEmail();
     $result['enabled'] = $user->isEnabled()? 'true':'false';
-    $result['date_joined'] = $user->getDate_joined();
-    $result['last_online'] = $user->getLast_online();
+    $result['dateJoined'] = $user->getDate_joined();
+    $result['lastOnline'] = $user->getLast_online();
     $result['authorities'] = array();
 
     foreach ( $user->getAuthorities() as $auth )

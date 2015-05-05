@@ -1,5 +1,5 @@
 <?php
-require_once '../lib/lib_project1.php';
+require_once '../lib/lib_tas.php';
 
 redirectIfLoggedOut();
 

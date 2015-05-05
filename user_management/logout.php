@@ -1,5 +1,5 @@
 <?php
-require '../lib/lib_project1.php';
+require '../lib/lib_tas.php';
 
 if ( isset( $_SESSION[USER] ) )
 {

@@ -21,9 +21,9 @@ var ProfileWidget = function()
         //////////////////////////////////////////
         // Find Pieces and Enliven DOM Fragment //
         //////////////////////////////////////////
-        container.append($("<p><a href=\"./\">Go Shopping</a>"));
-        container.append($("<p><a href=\"./user_management/userDetails.php?username=" + $('#user').html() + "\">Update Your Info</a>"));
-        container.append($("<p><a href=\"./cart.php\">View Your Cart</a>"));
+        container.append($("<p><a href=\"./userDetails.php\">Update Your Info</a>"));
+        container.append($("<p><a href=\"./\">View Your Courses</a>"));
+        container.append($("<p><a href=\"./\">View Your Topics</a>"));
 
         /////////////////////////////
         // Public Instance Methods //

@@ -37,7 +37,7 @@ var UserManagementWidget = function()
                 $.each( users,
                 function(username, user)
                 {
-                    authorities = $("<td id='authorities'>");
+                    authorities = $("<td id='Authorities'>");
 
                     $(user.authorities).each(function(i, authority)
                     {
@@ -52,11 +52,11 @@ var UserManagementWidget = function()
                     $("<input class='selectUser' user='" + username
                     + "' type='checkbox'>")))).append(
                     $("<td><span>" + user.enabled + "</span></td>")).append(
-                    $("<td><span>" + user.first_name + "</span></td>")).append(
-                    $("<td><span>" + user.last_name + "</span></td>")).append(
+                    $("<td><span>" + user.firstName + "</span></td>")).append(
+                    $("<td><span>" + user.lastName + "</span></td>")).append(
                     $("<td><span>" + user.email + "</span></td>")).append(
-                    $("<td><span>" + user.date_joined + "</span></td>")).append(
-                    $("<td><span>" + user.last_online + "</span></td>")).append(
+                    $("<td><span>" + user.dateJoined + "</span></td>")).append(
+                    $("<td><span>" + user.lastOnline + "</span></td>")).append(
                     authorities));
                 });
 
@@ -104,7 +104,7 @@ var UserManagementWidget = function()
                 }),
                 function(i, user)
                 {
-                    if ($(user).children("#authorities:contains(ROLE_ADMIN)").length)
+                    if ($(user).children("#Authorities:contains(ROLE_ADMIN)").length)
                     {
                         alert("You can't delete an admin!");
                     } else

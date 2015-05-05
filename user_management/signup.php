@@ -1,5 +1,5 @@
 <?php
-require 'lib/lib_project1.php';
+require '../lib/lib_tas.php';
 
 if ( $_SERVER['REQUEST_METHOD'] == 'POST' && $_POST['submitted'] )
 {
@@ -11,17 +11,17 @@ if ( $_SERVER['REQUEST_METHOD'] == 'POST' && $_POST['submitted'] )
     $_POST['password'] = clean_input( $_POST['password'] );
     $_POST['confirmPassword'] = clean_input( $_POST['confirmPassword'] );
     
-    $user = new MemberForm( $_POST['username'], $_POST['password'], $_POST['confirmPassword'], 
+    $user = new UserForm( $_POST['username'], $_POST['password'], $_POST['confirmPassword'], 
             $_POST['first_name'], $_POST['last_name'], $_POST['email'], time(), 0, NEW_USER_ENABLED );
     
     $errors = array ();
-    $errors = array_merge( SignUpFormValidator::validateRequiredFields( $user ), 
-            SignUpFormValidator::validate( $user ) );
+    $errors = array_merge( UserFormValidator::validateRequiredFields( $user ), 
+            UserFormValidator::validate( $user ) );
     
     // See if user is unique
     try
     {
-        if ( $MEMBER_DB_MANAGER->loadMemberByUsername( $user->getUsername() ) )
+        if ( $TAS_DB_MANAGER->loadUserByUsername( $user->getUsername() ) )
         {
             $errors[] .= sprintf( 'Username \'%s\' already exists!', $user->getUsername() );
         }
@@ -32,7 +32,7 @@ if ( $_SERVER['REQUEST_METHOD'] == 'POST' && $_POST['submitted'] )
     if ( count( $errors ) == 0 )
     {
         /* Process new user */
-        $MEMBER_DB_MANAGER->createUser( $user );
+        $TAS_DB_MANAGER->createUser( $user );
         
         /* Let them go to the login */
         redirectIfLoggedOut();
@@ -54,7 +54,7 @@ echo templateHead( 'Sign Up', array ( 'css/formStyle.css' ), array ( 'js/FormWid
 
     <?= templateHeader( false )?>
     <div id='content'>
-        <h1>Sign Up for The best E-Commerce site ever!</h1>
+        <h1>Sign Up for The Topic Approval System!</h1>
         <form id='signupForm' method='POST'>
             <?= $feedback?>
             <?php if(count($errors)>0) {foreach ($errors as $error){printf("<p class='error'><span>%s</span></p>", $error);}} ?>

@@ -1,10 +1,10 @@
 <?php
-include './lib/lib_project1.php';
+include './lib/lib_tas.php';
 
 redirectIfLoggedOut();
 
 // This is a secure area!
-if ( !$MEMBER_DB_MANAGER->isAdmin() )
+if ( !$TAS_DB_MANAGER->isAdmin() )
 {
     redirectIfLoggedIn();
 }

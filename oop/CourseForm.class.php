@@ -1,8 +1,8 @@
 <?php
 
-include_once 'ProductDetails.class.php';
+include_once PROJECT_ROOT . '/oop/CourseDetails.class.php';
 
-final class ProductForm extends ProductDetails
+final class CourseForm extends CourseDetails
 {
     public function __construct( $productId, $name, $description, $price, $quantity, $onSale,
         $sale, $imagePath )

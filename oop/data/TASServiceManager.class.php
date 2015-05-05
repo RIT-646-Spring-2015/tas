@@ -6,57 +6,71 @@ require_once 'exceptions/InadequateRightsException.class.php';
 class TASServiceManager
 {
 
+    const FOREIGN_KEY_SQL = 'PRAGMA foreign_keys = ON;';
+
     /**
      */
     const SELECT_ALL_USERS_SQL = 'SELECT User.Username, Password, Enabled, FirstName, LastName, Email, DateJoined, LastOnline, RoleName FROM User LEFT JOIN UserRole ON User.Username=UserRole.Username';
-    
+
     /**
      */
     const SELECT_ALL_ROLES_SQL = 'SELECT Name FROM Role';
 
     /**
      */
+    const SELECT_ALL_STATUSES_SQL = 'SELECT Name FROM Status';
+
+    /**
+     */
     const SELECT_ALL_COURSES_SQL = 'SELECT Number, Name, Username FROM Course LEFT JOIN UserCourse ON Course.Number=UserCourse.CourseNumber';
-    
+
     /**
      */
     const SELECT_ALL_TOPICS_SQL = 'SELECT Name, Link, SubmissionDate, Blacklisted, Status FROM Topic';
-    
-    /**
-     */
-    const QUERY_NUMBER_OF_USERS_SQL = 'SELECT COUNT(username) FROM users WHERE username = ?';
 
     /**
      */
-    const QUERY_USER_BY_USERNAME = 'SELECT users.username, password, enabled, first_name, last_name, email, date_joined, last_online, role FROM users LEFT JOIN user_role ON users.username=user_role.username WHERE users.username = ?';
+    const QUERY_NUMBER_OF_USERS_SQL = 'SELECT COUNT(Username) FROM User WHERE Username = ?';
 
     /**
      */
-    const NEW_USER_SQL = 'INSERT INTO users (username, password, enabled, first_name, last_name, email) VALUES ( ?, ?, ?, ?, ?, ? )';
+    const QUERY_USER_BY_USERNAME = 'SELECT User.Username, Password, Enabled, FirstName, LastName, Email, DateJoined, LastOnline, RoleName FROM User LEFT JOIN UserRole ON User.Username=UserRole.Username WHERE User.Username = ?';
 
     /**
      */
-    const NEW_USER_ROLE_SQL = 'INSERT INTO user_role (username, role) VALUES( ?, ? )';
+    const NEW_USER_SQL = 'INSERT INTO User (Username, Password, Enabled, FirstName, LastName, Email) VALUES ( ?, ?, ?, ?, ?, ? )';
 
     /**
      */
-    const DELETE_USER_SQL = 'DELETE FROM users WHERE username = ?';
+    const NEW_USER_ROLE_SQL = 'INSERT INTO UserRole (Username, RoleName) VALUES( ?, ? )';
 
     /**
      */
-    const DELETE_USER_AUTHORITIES_SQL = 'DELETE FROM user_role WHERE username = ?';
+    const DELETE_USER_SQL = 'DELETE FROM User WHERE Username = ?';
 
     /**
      */
-    const UPDATE_USER_SQL = 'UPDATE users SET enabled = ?, first_name = ?, last_name = ?, email = ? WHERE username = ?';
+    const DELETE_USER_AUTHORITIES_SQL = 'DELETE FROM UserRole WHERE Username = ?';
 
     /**
      */
-    const UPDATE_PASSWORD_SQL = 'UPDATE users SET password = ? WHERE username = ?';
+    const UPDATE_USER_SQL = 'UPDATE User SET Enabled = ?, FirstName = ?, LastName = ?, Email = ? WHERE Username = ?';
 
     /**
      */
-    const UPDATE_USER_LAST_ONLINE_SQL = 'UPDATE users SET last_online = DATETIME(\'NOW\', \'LOCALTIME\') WHERE username = ?';
+    const UPDATE_PASSWORD_SQL = 'UPDATE User SET Password = ? WHERE Username = ?';
+
+    /**
+     */
+    const UPDATE_USER_LAST_ONLINE_SQL = 'UPDATE User SET LastOnline = DATETIME(\'NOW\', \'LOCALTIME\') WHERE Username = ?';
+
+    const ROLE_ADMIN = 'ROLE_ADMIN';
+
+    const ROLE_PROFESSOR = 'ROLE_PROFESSOR';
+
+    const ROLE_TA = 'ROLE_TA';
+
+    const ROLE_STUDENT = 'ROLE_STUDENT';
 
     /**
      * This is a Singleton architecture I am trying to acheive.
@@ -86,21 +100,22 @@ class TASServiceManager
 
     private function getDB()
     {
-        try {
-            $db = new SQLite3( MEMBER_DB );
-        } catch( Exception $e )
+        try
+        {
+            $db = new SQLite3( TAS_DB );
+            $db->exec( self::FOREIGN_KEY_SQL );
+        } catch ( Exception $e )
         {
             echo $e->getMessage();
         }
         return $db;
     }
 
-    public function createUser( MemberForm $user )
+    public function createUser( UserForm $user )
     {
         $stmt = $this->getDB()->prepare( self::NEW_USER_SQL );
         PreparedStatementSetter::setValuesAndExecute( 
-                function ( SQLite3Stmt &$ps ) use ( $user )
-                {
+                function ( SQLite3Stmt &$ps ) use($user ) {
                     $ps->bindValue( 1, $user->getUsername(), SQLITE3_TEXT );
                     $ps->bindValue( 2, sha1( $user->getPassword() ), SQLITE3_TEXT );
                     $ps->bindValue( 3, NEW_USER_ENABLED, SQLITE3_INTEGER );
@@ -109,40 +124,40 @@ class TASServiceManager
                     $ps->bindValue( 6, $user->getEmail(), SQLITE3_TEXT );
                 }, $stmt );
         
-        $this->insertUserAuthorities( $user, 'ROLE_USER' );
+        $this->insertUserAuthorities( $user, self::ROLE_STUDENT );
     }
 
-    public function loggedIn( Member $user )
+    public function loggedIn( User $user )
     {
+        echo htmlentities( $user->toString() );
         // Update the last time this user was online
         $stmt = $this->getDB()->prepare( self::UPDATE_USER_LAST_ONLINE_SQL );
         PreparedStatementSetter::setValuesAndExecute( 
-                function ( SQLite3Stmt &$ps ) use ( $user )
-                {
+                function ( SQLite3Stmt &$ps ) use($user ) {
                     $ps->bindValue( 1, $user->getUsername() );
                 }, $stmt );
-
+        
         // set session variable
         $_SESSION[USER] = $user;
     }
 
-    public function updateUser( MemberDetails $user )
+    public function updateUser( UserDetails $user )
     {
         if ( $this->getCurrentUser()->getUsername() != $user->getUsername() )
         {
             $this->failIfNotAdmin();
         }
-
+        
         // See if user is not admin and trying to become an admin
         if ( !$this->isAdmin() && in_array( 'ROLE_ADMIN', $user->getAuthorities() ) )
         {
-            throw new InadequateRightsException( 'Non-administrator cannot make him/herself an administrator!' );
+            throw new InadequateRightsException( 
+                    'Non-administrator cannot make him/herself an administrator!' );
         }
         
         $stmt = $this->getDB()->prepare( self::UPDATE_USER_SQL );
         PreparedStatementSetter::setValuesAndExecute( 
-                function ( SQLite3Stmt &$ps ) use ( $user )
-                {
+                function ( SQLite3Stmt &$ps ) use($user ) {
                     $ps->bindValue( 1, $user->isEnabled(), SQLITE3_INTEGER );
                     $ps->bindValue( 2, $user->getFirstName() );
                     $ps->bindValue( 3, $user->getLastName() );
@@ -155,14 +170,13 @@ class TASServiceManager
         {
             $this->insertUserAuthorities( $user, $auth );
         }
-
     }
 
     public function deleteUser( $username )
     {
         try
         {
-            if ( $this->checkForAdminRights( $this->loadMemberByUsername( $username ) ) )
+            if ( $this->checkForAdminRights( $this->loadUserByUsername( $username ) ) )
                 return;
             
             $this->failIfNotAdmin();
@@ -173,7 +187,7 @@ class TASServiceManager
             $stmt->bindParam( 1, $username, SQLITE3_TEXT );
             
             $stmt->execute();
-
+            
             $PRODUCT_DB_MANAGER->deleteUserCart( $username );
         } catch ( Exception $e )
         {
@@ -181,12 +195,11 @@ class TASServiceManager
         }
     }
 
-    private function insertUserAuthorities( MemberDetails $user, $auth )
+    private function insertUserAuthorities( UserDetails $user, $auth )
     {
         $stmt = $this->getDB()->prepare( self::NEW_USER_ROLE_SQL );
         PreparedStatementSetter::setValuesAndExecute( 
-                function ( SQLite3Stmt &$ps ) use ( $user, $auth )
-                {
+                function ( SQLite3Stmt &$ps ) use($user, $auth ) {
                     $ps->bindValue( 1, $user->getUsername(), SQLITE3_TEXT );
                     $ps->bindValue( 2, $auth, SQLITE3_TEXT );
                 }, $stmt );
@@ -196,8 +209,7 @@ class TASServiceManager
     {
         $stmt = $this->getDB()->prepare( self::DELETE_USER_AUTHORITIES_SQL );
         PreparedStatementSetter::setValuesAndExecute( 
-                function ( SQLite3Stmt &$ps ) use ( $username )
-                {
+                function ( SQLite3Stmt &$ps ) use($username ) {
                     $ps->bindValue( 1, $username, SQLITE3_TEXT );
                 }, $stmt );
     }
@@ -228,8 +240,7 @@ class TASServiceManager
         
         $stmt = $this->getDB()->prepare( self::UPDATE_PASSWORD_SQL );
         PreparedStatementSetter::setValuesAndExecute( 
-                function ( SQLite3Stmt &$ps ) use ( $newPassword, $username )
-                {
+                function ( SQLite3Stmt &$ps ) use($newPassword, $username ) {
                     $ps->bindValue( 1, sha1( $newPassword ), SQLITE3_TEXT );
                     $ps->bindValue( 2, $username, SQLITE3_TEXT );
                 }, $stmt );
@@ -245,35 +256,48 @@ class TASServiceManager
     {
         $results = $this->getDB()->query( self::SELECT_ALL_ROLES_SQL );
         
-        $roles = array();
+        $roles = array ();
         
         while ( $res = $results->fetchArray( SQLITE3_ASSOC ) )
-            $roles[] = $res['role'];
+            $roles[] = $res['Name'];
         
         return $roles;
     }
 
+    public function getAvailableStatuses()
+    {
+        $results = $this->getDB()->query( self::SELECT_ALL_STATUSES_SQL );
+        
+        $statuses = array ();
+        
+        while ( $res = $results->fetchArray( SQLITE3_ASSOC ) )
+            $statuses[] = $res['Name'];
+        
+        return $statuses;
+    }
+
     /**
      * This method is here mostly for convention in a system
-     *   where accessing the current user is more difficult.
-     *   In PHP it is accessible through the $_SESSION so that
-     *   is what is used in code elsewhere.
+     * where accessing the current user is more difficult.
+     * In PHP it is accessible through the $_SESSION so that
+     * is what is used in code elsewhere.
      */
     public function getCurrentUser()
     {
         return $_SESSION[USER];
     }
 
-    private function checkForAdminRights( Member $user )
+    private function checkForAdminRights( User &$user )
     {
-        return $user != null && $user->isEnabled() &&
-                 in_array( 'ROLE_ADMIN', $user->getAuthorities() );
+        // DEBUG
+        // echo htmlentities( $user->toString() ) . "<br>";
+        return $user != null && $user->isEnabled() && $user->hasRole( self::ROLE_ADMIN );
     }
 
     public function isAdmin()
     {
         $user = $_SESSION[USER];
-
+        
         return $this->checkForAdminRights( $user );
     }
 
@@ -281,8 +305,7 @@ class TASServiceManager
     {
         $user = $this->getCurrentUser();
         
-        if ( $user == null || !$user->isEnabled() ||
-                 !in_array( 'ROLE_ADMIN', $user->getAuthorities() ) )
+        if ( !$this->checkForAdminRights( $user ) )
         {
             throw new InadequateRightsException( $message );
         }
@@ -292,16 +315,16 @@ class TASServiceManager
 
     /**
      * Executes the SQL <tt>usersByUsernameQuery</tt> and returns a list of
-     * Member objects.
+     * User objects.
      * There should normally only be one matching user.
      */
-    public function loadMemberByUsername( $username )
+    public function loadUserByUsername( $username )
     {
         $stmt = $this->getDB()->prepare( self::QUERY_USER_BY_USERNAME );
         $stmt->bindParam( 1, $username, SQLITE3_TEXT );
         
         $result = $stmt->execute();
-
+        
         $users = self::extractData( $result );
         
         if ( count( $users ) == 0 )
@@ -314,21 +337,21 @@ class TASServiceManager
 
     private static function mapRow( $rs )
     {
-        $roles = array ( $rs['role'] );
+        $roles = array ( $rs['RoleName'] );
         
-        $user = new Member( $rs['username'], $rs['password'], $rs['first_name'], $rs['last_name'], 
-                $rs['email'], $rs['date_joined'], $rs['last_online'], $rs['enabled'], $roles );
+        $user = new User( $rs['Username'], $rs['Password'], $rs['FirstName'], $rs['LastName'], 
+                $rs['Email'], $rs['DateJoined'], $rs['LastOnline'], $rs['Enabled'], $roles );
         
         return $user;
     }
 
     private static function extractData( $rs )
     {
-        $results = array();
+        $results = array ();
         
         while ( $res = $rs->fetchArray( SQLITE3_ASSOC ) )
         {
-            if ( !isset( $res['username'] ) )
+            if ( !isset( $res['Username'] ) )
                 continue;
             
             $user = self::mapRow( $res );
@@ -344,7 +367,7 @@ class TASServiceManager
                 $results[$user->getUsername()] = $user;
             }
         }
-
+        
         return $results;
     }
 }

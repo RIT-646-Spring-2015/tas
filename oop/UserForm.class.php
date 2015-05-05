@@ -1,21 +1,23 @@
 <?php
+require_once PROJECT_ROOT . '/oop/UserDetails.class.php';
 
-include_once 'MemberDetails.class.php';
-
-final class MemberForm extends MemberDetails
+final class UserForm extends UserDetails
 {
+
     private $confirmPassword;
-    
-    public function __construct( $username, $password, $confirmPassword, $firstname, $lastname, $email,
-        $date_joined, $last_online, $enabled, $authorities = array() )
+
+    public function __construct( $username, $password, $confirmPassword, $firstName, $lastName, 
+            $email, $dateJoined, $lastOnline, $enabled, $authorities = array() )
     {
         $this->confirmPassword = $confirmPassword;
-        parent::__construct( $username, $password, $firstname, $lastname, $email,
-            $date_joined, $last_online, $enabled, $authorities );
+        parent::__construct( $username, $password, $firstName, $lastName, $email, $dateJoined, 
+                $lastOnline, $enabled, $authorities );
     }
 
     /**
-     * @param string username
+     *
+     * @param
+     *            string username
      *            the username to set
      */
     public function setUsername( $username )
@@ -24,25 +26,31 @@ final class MemberForm extends MemberDetails
     }
 
     /**
-     * @param string first_name
-     *            the first_name to set
+     *
+     * @param
+     *            string firstName
+     *            the firstName to set
      */
-    public function setFirst_name( $first_name )
+    public function setFirstName( $firstName )
     {
-        $this->first_name = $first_name;
+        $this->firstName = $firstName;
     }
 
     /**
-     * @param string last_name
+     *
+     * @param
+     *            string last_name
      *            the last_name to set
      */
-    public function setLast_name( $last_name )
+    public function setLastName( $lastName )
     {
-        $this->last_name = $last_name;
+        $this->lastName = $lastName;
     }
 
     /**
-     * @param string email
+     *
+     * @param
+     *            string email
      *            the email to set
      */
     public function setEmail( $email )
@@ -51,7 +59,9 @@ final class MemberForm extends MemberDetails
     }
 
     /**
-     * @param string password
+     *
+     * @param
+     *            string password
      *            the password to set
      */
     public function setPassword( $password )
@@ -60,7 +70,9 @@ final class MemberForm extends MemberDetails
     }
 
     /**
-     * @param string confirmPassword
+     *
+     * @param
+     *            string confirmPassword
      *            the confirmPassword to set
      */
     public function setConfirmPassword( $confirmPassword )
@@ -69,6 +81,7 @@ final class MemberForm extends MemberDetails
     }
 
     /**
+     *
      * @return the user form confirmed password
      */
     public function getConfirmPassword()
@@ -77,23 +90,29 @@ final class MemberForm extends MemberDetails
     }
 
     /**
-     * @param number date_joined the date_joined to set
+     *
+     * @param
+     *            number dateJoined the dateJoined to set
      */
-    public function setDate_joined( $date_joined )
+    public function setDateJoined( $dateJoined )
     {
-        $this->date_joined = $date_joined;
+        $this->dateJoined = $dateJoined;
     }
 
     /**
-     * @param number last_online the last_online to set
+     *
+     * @param
+     *            number last_online the last_online to set
      */
-    public function setLast_online( $last_online )
+    public function setLastOnline( $lastOnline )
     {
-        $this->last_online = $last_online;
+        $this->lastOnline = $lastOnline;
     }
 
     /**
-     * @param bool enabled enable user account
+     *
+     * @param
+     *            bool enabled enable user account
      */
     public function setEnabled( $enabled )
     {
@@ -101,13 +120,15 @@ final class MemberForm extends MemberDetails
     }
 
     /**
-     * @param boolean authorities authorites of the user
+     *
+     * @param
+     *            boolean authorities authorites of the user
      */
     public function setAuthorities( $authorities )
     {
         $this->authorities = $authorities;
     }
-    
+
     /**
      * Clear a user's password for security purposes
      */

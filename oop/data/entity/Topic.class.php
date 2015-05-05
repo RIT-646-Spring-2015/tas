@@ -1,14 +1,13 @@
 <?php
-require 'ProductDetails.class.php';
+require PROJECT_ROOT. '/oop/TopicDetails.class.php';
 
-final class Product extends ProductDetails
+final class Topic extends TopicDetails
 {
 
-    public static function productFromForm( ProductForm $form )
+    public static function topicFromForm( TopicForm $form )
     {
-        return new Member( $form->getProductId(), $form->getName(), $form->getDescription(), 
-                $form->getPrice() * 100, $form->getQuantity(), $form->isOnSale(), 
-                $form->getSalePrice() * 100, $form->getImagePath() );
+        return new Topic( $form->getName(), $form->getLink(), $form->getSubmissionDate(), 
+                $form->isBlacklisted(), $form->getStatus() );
     }
 }
 ?>

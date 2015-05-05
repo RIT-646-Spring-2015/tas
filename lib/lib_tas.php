@@ -1,19 +1,21 @@
 <?php
 
+// TODO: Installation bash script?
+define( 'PROJECT_ROOT', realpath( '/home/axa9070/Sites/646/tas/' ) );
+
+
 /*
  * * * * * * * * * * *
  * Load in properties
  * * * * * * * * * *
  */
-$props = parse_ini_file( realpath( 'resources/topic-selection.properties' ), true );
+$props = parse_ini_file( realpath( PROJECT_ROOT . '/resources/topic-selection.properties' ), true );
 
 /*
  * * * * * * * * * *
  * Define Constants
  * * * * * * * * *
  */
-// TODO: Installation bash script?
-define( 'PROJECT_ROOT', realpath( '.' ) );
 define( 'SITE_ROOT', $props['tas']['SITE_CONTEXT'] );
 define( 'PROFILE_LOC', SITE_ROOT . '/user_management/profile.php' );
 
@@ -25,15 +27,24 @@ define( 'SALT', $props['other']['SALT'] );
 // define( 'MIN_SALE_ITEMS', $props['product-database']['MIN_SALE_ITEMS'] );
 // define( 'MAX_SALE_ITEMS', $props['product-database']['MAX_SALE_ITEMS'] );
 
-define( 'TAS_DB', realpath( $props['tas-database']['dbname'] ) );
+define( 'TAS_DB', realpath( PROJECT_ROOT . '/' . $props['tas-database']['dbname'] ) );
 define( 'NEW_USER_ENABLED', $props['tas-database']['NEW_USER_ENABLED'] );
-define( 'USERMANAGEMENT_OPTION', '<a id="userManagementOption" href="' . SITE_ROOT . '/user_management">Manage Users</a>' );
-define( 'TOPICMANAGEMENT_OPTION', '<a id="topicManagementOption" href="' . SITE_ROOT . '/topic_management.php%s">Manage Topics</a>' );
-define( 'COURSEMANAGEMENT_OPTION', '<a id="courseManagementOption" href="' . SITE_ROOT . '/course_management.php">Manage Courses</a>' );
+define( 'USERMANAGEMENT_OPTION', 
+        '<a id="userManagementOption" href="' . SITE_ROOT .
+                 '/user_management"><span>Manage Users</span></a>' );
+define( 'TOPICMANAGEMENT_OPTION', 
+        '<a id="topicManagementOption" href="' . SITE_ROOT .
+                 '/topic_management%s"><span>Manage Topics</span></a>' );
+define( 'COURSEMANAGEMENT_OPTION', 
+        '<a id="courseManagementOption" href="' . SITE_ROOT .
+                 '/course_management"><span>Manage Courses</span></a>' );
 define( 'LOGIN_OPTION', '<a id="loginOption" href="' . SITE_ROOT . '/login.php">Login</a>' );
-define( 'LOGOUT_OPTION', '<a id="logoutOption" href="' . SITE_ROOT . '/user_management/logout.php">Logout</a>' );
-// define( 'VIEW_CART_OPTION', '<a id="viewCartOption" href="' . SITE_ROOT . '/cart.php">View Cart</a>' );
-// define( 'CONTINUE_SHOPPING_OPTION', '<a id="continueShoppingOption" href="' . SITE_ROOT . '/">Continue Shopping</a>' );
+define( 'LOGOUT_OPTION', 
+        '<a id="logoutOption" href="' . SITE_ROOT . '/user_management/logout.php">Logout</a>' );
+// define( 'VIEW_CART_OPTION', '<a id="viewCartOption" href="' . SITE_ROOT . '/cart.php">View
+// Cart</a>' );
+// define( 'CONTINUE_SHOPPING_OPTION', '<a id="continueShoppingOption" href="' . SITE_ROOT .
+// '/">Continue Shopping</a>' );
 
 // Database Manager
 require_once PROJECT_ROOT . '/oop/data/TASServiceManager.class.php';
@@ -41,7 +52,7 @@ require_once PROJECT_ROOT . '/oop/data/TASServiceManager.class.php';
 // User Library
 require_once PROJECT_ROOT . '/oop/data/entity/User.class.php';
 require_once PROJECT_ROOT . '/oop/UserForm.class.php';
-require_once PROJECT_ROOT . '/oop/SignUpFormValidator.class.php';
+require_once PROJECT_ROOT . '/oop/UserFormValidator.class.php';
 
 // Topic Library
 require_once PROJECT_ROOT . '/oop/data/entity/Topic.class.php';
@@ -56,7 +67,7 @@ require_once PROJECT_ROOT . '/oop/CourseFormValidator.class.php';
 $TAS_DB_MANAGER = TASServiceManager::getInstance();
 
 
-// I can move this to the .htaccess file in ~/Sites/756/project1 if I want to
+// I can move this to the .htaccess file in ~/Sites/646/tas if I want to
 // php_flag session.auto_start on
 session_start();
 
@@ -69,14 +80,14 @@ session_start();
 /**
  * Redirect user if they are logged in.
  *
- * @param string $location
+ * @param string $redirect
  *            the location to redirect to. By default, this is <code>./</code>
  */
-function redirectIfLoggedIn( $location = PROFILE_LOC )
+function redirectIfLoggedIn( $redirect = PROFILE_LOC )
 {
     if ( isset( $_SESSION[USER] ) )
     {
-        header( "Location: $location" );
+        header( "Location: $redirect" );
         die();
     }
 }
@@ -88,7 +99,7 @@ function redirectIfLoggedOut( $params = '' )
 {
     if ( !isset( $_SESSION[USER] ) )
     {
-        header( 'Location: ' . SITE_ROOT . '/user_management/login.php' . $params );
+        header( 'Location: ' . SITE_ROOT . '/login.php' . $params );
         die();
     }
 }
@@ -167,34 +178,39 @@ function templateHead( $title = "Page", $styles, $scripts )
 <head>
 <meta charset="UTF-8">
 
-<title>Project 1 | ' . $title . '</title>
-<meta name="description" content="Project 1 | E-Commerce site">
+<title>TAS | ' . $title . '</title>
+<meta name="description" content="TAS | Topic Approval System site">
 <meta name="author" content="Alex Aiezza">
 
 <link rel="stylesheet" type="text/css" href="' . SITE_ROOT . '/css/mainStyle.css">
-<link rel="stylesheet" type="text/css" href="' . SITE_ROOT . '/css/lib/perfect-scrollbar.min.css">
+<link rel="stylesheet" type="text/css" href="' .
+             SITE_ROOT . '/css/lib/perfect-scrollbar.min.css">
+<link rel="stylesheet" type="text/css" href="' . SITE_ROOT . '/css/lib/jquery-ui.css">
+
 ';
     
     // Extra styles
     foreach ( $styles as $style )
     {
-        $head .= "<link rel=\"stylesheet\" type=\"text/css\" href=\"$style\">\n";
+        $head .= sprintf( "<link rel=\"stylesheet\" type=\"text/css\" href=\"%s/$style\">\n", 
+                SITE_ROOT );
     }
     
     $head .= '
 
 <link rel="icon" type="image/ico" href="' . SITE_ROOT . '/images/favicon.ico">
 
-<script src="//code.jquery.com/jquery-2.1.3.min.js"></script>
+<script src="//code.jquery.com/jquery-2.1.4.min.js"></script>
 <script src="' . SITE_ROOT . '/js/HeaderWidget.js"></script>
 <script src="' . SITE_ROOT . '/js/lib/perfect-scrollbar.min.js"></script>
+<script src="' . SITE_ROOT . '/js/lib/jquery-ui.min.js"></script>
 
 ';
     
     // Extra javascripts
     foreach ( $scripts as $script )
     {
-        $head .= "<script src='$script'></script>\n";
+        $head .= sprintf( "<script src='%s/$script'></script>\n", SITE_ROOT );
     }
     
     $head .= "\n<h2 id='title'>$title</h2>\n\n";
@@ -212,45 +228,49 @@ function templateHead( $title = "Page", $styles, $scripts )
  *            a link back to the user's profile page.
  * @param bool $logoutOption
  *            if true, will add the option in the header to logout
- * @param bool $userManagementOption
- *            if true, will add the option in the header to manage users.
+ * @param bool $managementOption
+ *            if true, will add the option in the header to manage things.
  *            NOTE: even if set to true, if the current user is not an
  *            administrator, the option will not be presented.
- * @return string template header for the e-commerce site
+ * @return string template header
  */
-function templateHeader( $linkProfile = false, $logoutOption = false, $managementOption = false, 
-        $viewCartOption = false, $continueShoppingOption = false, $loginIfLoggedOut = false )
+// @formatter:off
+function templateHeader(
+        $linkProfile = false,
+        $logoutOption = false,
+        $topicManagementOption = false, 
+        $courseManagementOption = false,
+        $userManagementOption = false,
+        $viewCartOption = false, 
+        $continueShoppingOption = false,
+        $loginIfLoggedOut = false )
 {
+    // @formatter:on
     global $TAS_DB_MANAGER;
     
     $header = "<div id=\"header\"";
     $header .= $linkProfile ? "class=\"linkProfile\"" : "";
     $header .= "></div>";
     
-    if ( ( $TAS_DB_MANAGER->getCurrentUser() = $user ) == null )
-    {
-        $linkProfile = $logoutOption = $managementOption = $viewCartOption = $continueShoppingOption = false;
-    } else
-        $loginIfLoggedOut = false;
+    if ( ( $user = $TAS_DB_MANAGER->getCurrentUser() ) == null )
+        $linkProfile = $logoutOption = $topicManagementOption = $courseManagementOption = $userManagementOption = $viewCartOption = $continueShoppingOption = false;
+    else $loginIfLoggedOut = false;
     
     if ( $loginIfLoggedOut )
         $header .= LOGIN_OPTION;
     
     if ( $logoutOption )
         $header .= LOGOUT_OPTION;
+        
+        // Build this using Quartz: http://cssmenumaker.com/menu/quartz-responsive-menu
+    if ( $userManagementOption && $TAS_DB_MANAGER->isAdmin() )
+        $header .= USERMANAGEMENT_OPTION;
     
-    if ( $managementOption )
-    {
-        if ( $TAS_DB_MANAGER->isTA() )
-        {
-            $header .= sprintf( TOPICMANAGEMENT_OPTION, );
-        } else if ( $TAS_DB_MANAGER->isAdmin() || $TAS_DB_MANAGER->isProfessor() )
-        {
-            $header .= USERMANAGEMENT_OPTION;
-            $header .= COURSEMANAGEMENT_OPTION;
-            $header .= TOPICMANAGEMENT_OPTION;
-        }
-    }
+    if ( $topicManagementOption && $TAS_DB_MANAGER->isAdmin() )
+        $header .= TOPICMANAGEMENT_OPTION;
+    
+    if ( $courseManagementOption && $TAS_DB_MANAGER->isAdmin() )
+        $header .= COURSEMANAGEMENT_OPTION;
     
     if ( $viewCartOption )
         $header .= VIEW_CART_OPTION;

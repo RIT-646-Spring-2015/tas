@@ -1,14 +1,12 @@
 <?php
 
-class ProductFormValidator
+class CourseFormValidator
 {
 
-    const ACCEPTABLE_PRODUCT_NAME = '/[^\w\p{P} ]{3,50}$/';
-
     /**
-     * Validates a new product
+     * Validates a new course
      *
-     * @param ProductForm $product            
+     * @param CourseForm $course            
      * @return array
      */
     public static function validateRequiredFields( ProductForm $product )

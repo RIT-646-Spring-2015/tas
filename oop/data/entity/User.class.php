@@ -1,6 +1,5 @@
 <?php
-
-require '../../UserDetails.class.php';
+require PROJECT_ROOT . '/oop/UserDetails.class.php';
 
 final class User extends UserDetails
 {

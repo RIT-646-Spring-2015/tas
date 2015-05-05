@@ -1,71 +1,45 @@
 <?php
 
-abstract class ProductDetails
+abstract class TopicDetails
 {
-
-    protected $productId;
 
     protected $name;
 
-    protected $description;
+    protected $link;
 
-    protected $price;
+    protected $submissionDate;
 
-    protected $quantity;
+    protected $blacklisted;
 
-    protected $sale;
-
-    protected $onSale;
-
-    protected $imagePath;
+    protected $status;
 
     /**
-     * Constructs a new product object
+     * Constructs a new topic object
      *
-     * @param string $productId
-     *            the product's unique productId.
      * @param string $name
-     *            the product's name.
-     * @param string $description
-     *            the product's description.
-     * @param string $price
-     *            the product's price.
-     * @param string $quantity
-     *            the product's quantity.
-     * @param number $sale
-     *            the product's sale price.
-     * @param number $onSale
-     *            is the product on sale.
-     * @param number $imagePath
-     *            the product's imagePath.
+     *            the topic name.
+     * @param string $link
+     *            the topic link.
+     * @param string $submissionDate
+     *            the topic submission date.
+     * @param string $blacklisted
+     *            whether or not the topic is blacklisted.
+     * @param number $status
+     *            the topic's status.
      */
-    public function __construct( $productId, $name, $description, $price, $quantity, $onSale, $sale, 
-            $imagePath )
+    public function __construct( $name, $link, $submissionDate, $blacklisted, $status )
     {
-        $this->productId = $productId;
         $this->name = $name;
-        $this->description = $description;
-        $this->price = $price;
-        $this->quantity = $quantity;
-        $this->sale = $sale;
-        $this->onSale = $onSale;
-        $this->imagePath = $imagePath;
+        $this->link = $link;
+        $this->submissionDate = $submissionDate;
+        $this->blacklisted = $blacklisted;
+        $this->status = $status;
     }
 
     /**
-     * Get the product's productId.
+     * Get the tooic name.
      *
-     * @return the product's productId.
-     */
-    public function getProductId()
-    {
-        return $this->productId;
-    }
-
-    /**
-     * Get the product's name.
-     *
-     * @return the product's name.
+     * @return the topic name.
      */
     public function getName()
     {
@@ -73,80 +47,49 @@ abstract class ProductDetails
     }
 
     /**
-     * Get the product's description.
+     * Get the topic link.
      *
-     * @return the product's description.
+     * @return the topic link.
      */
-    public function getDescription()
+    public function getLink()
     {
-        return $this->description;
+        return $this->link;
     }
 
     /**
-     * Get the product's price.
+     * Get the topic submissionDate.
      *
-     * @return the product's price.
+     * @return the topic submissionDate.
      */
-    public function getPrice()
+    public function getSubmissionDate()
     {
-        return $this->price;
+        return $this->submissionDate;
     }
 
     /**
-     * Get the product's quantity.
+     * Get whether the topic is blacklisted.
      *
-     * @return the product's quantity.
+     * @return whether the topic is blacklisted.
      */
-    public function getQuantity()
+    public function isBlacklisted()
     {
-        return $this->quantity;
+        return $this->blacklisted;
     }
 
     /**
-     * Get the product's sale price.
+     * Get the topic's status.
      *
-     * @return the product's sale price.
+     * @return the topic's status.
      */
-    public function getSalePrice()
+    public function getStatus()
     {
-        return $this->sale;
-    }
-
-    /**
-     * Get whether the product is on sale.
-     *
-     * @return is the product on sale.
-     */
-    public function isOnSale()
-    {
-        return $this->onSale;
-    }
-
-    /**
-     * Get the product's image path.
-     *
-     * @return the product's image path.
-     */
-    public function getImagePath()
-    {
-        return $this->imagePath;
-    }
-
-    /**
-     * Get the product's image path through the site.
-     *
-     * @return the product's image path through the site.
-     */
-    public function getImageSitePath()
-    {
-        return preg_replace( '/^\/home\/([^\/]+)\/Sites/', 'http://kelvin.ist.rit.edu/~$1', 
-                $this->imagePath );
+        return $this->status;
     }
 
     public function toString()
     {
-        return sprintf( "%s: %s Price:$%f (Sale Price:$%s) Quantity:<%s>", $this->productId, 
-                $this->name, $this->price, $this->sale, $this->quantity );
+        return sprintf( "%s: [%s] {Blacklisted: %b}%n Link: (%s)%n [%s]", $this->name, 
+                $this->submissionDate, $this->blacklisted, $this->link, $this->status );
     }
 }
 

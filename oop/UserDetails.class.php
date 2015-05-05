@@ -130,10 +130,16 @@ abstract class UserDetails
         return $this->authorities;
     }
     
+    public function hasRole( $role )
+    {
+        return in_array( $role, $this->authorities );
+        
+    }
+    
     public function toString()
     {
-        return sprintf( "%s (%s %s) <%s>", $this->username, $this->firstname, $this->lastname, 
-                $this->email );
+        return sprintf( "%s (%s %s) <%s> [%s]", $this->username, $this->firstname, $this->lastname, 
+                $this->email, implode( ', ', $this->authorities ) );
     }
 
     public function clearCredentials()

@@ -11,7 +11,7 @@ html, body, div, p, span, a {
     
     font-size: 100%;
     overflow: hidden;
-    vertical-align: baseline;
+    vertical-align: middle;
     
     text-align: justify;
     text-justify: inter-word;

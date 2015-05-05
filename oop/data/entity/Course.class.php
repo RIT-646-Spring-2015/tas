@@ -1,5 +1,5 @@
 <?php
-require '../../CourseDetails.class.php';
+require PROJECT_ROOT . '/oop/CourseDetails.class.php';
 require_once 'User.class.php';
 
 final class Course extends CourseDetails

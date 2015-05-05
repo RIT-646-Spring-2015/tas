@@ -1,7 +1,9 @@
 <?php
 require_once './lib/lib_tas.php';
 
-if ($MEMBER_DB_MANAGER->getCurrentUser() == null) {
+redirectIfLoggedOut();
+
+if ($TAS_DB_MANAGER->getCurrentUser() == null) {
     $username = '%%';
 } else {
     $username = getActingUsername("You cannot shop as another user!");
@@ -36,7 +38,5 @@ echo templateHead("Topic Approval System",
 	</div>
 </body>
 <span id="user"><?= $username ?></span>
-<p id="page"><?= isset( $_GET['page'] ) ? $_GET['page'] : 1 ?></p>
-<p id="lastPage"><?= ceil( $PRODUCT_DB_MANAGER->getNumberOfProductsNotOnSale() / PRODUCTS_PER_PAGE ) ?></p>
 
 </html>

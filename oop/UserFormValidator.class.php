@@ -1,17 +1,15 @@
 <?php
 
-class SignUpFormValidator
+class UserFormValidator
 {
 
-    const ACCEPTABLE_USERNAME = '/^[\w]{3,16}$/';
-    
     /**
      * Validates a new user
      *
-     * @param MemberForm $user            
+     * @param UserForm $user            
      * @return array
      */
-    public static function validateRequiredFields( MemberForm $user )
+    public static function validateRequiredFields( UserForm $user )
     {
         $errors = array();
         self::validates( $errors, $user->getFirstname(), 'First name required.' );
@@ -22,7 +20,7 @@ class SignUpFormValidator
         return $errors;
     }
 
-    public static function validate( MemberForm $user )
+    public static function validate( UserForm $user )
     {
         $errors = array();
 
