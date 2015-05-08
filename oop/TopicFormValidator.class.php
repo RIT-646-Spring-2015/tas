@@ -33,9 +33,9 @@ class TopicFormValidator
         }
         
         // Validate Topic Link
-        if ( !preg_match( '/.{1,1000}$/', $topic->getLink() ) )
+        if ( !preg_match( '/.{1,500}$/', $topic->getLink() ) )
         {
-            $errors[] .= 'Link must be less than 1000 characters';
+            $errors[] .= 'Link must be less than 500 characters';
         }
         
         // Validate Status

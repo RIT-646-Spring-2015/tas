@@ -21,7 +21,7 @@ if ( $_SERVER['REQUEST_METHOD'] == 'POST' )
     
     // Clean Data
     $_POST['number'] = clean_input( $_POST['number'] );
-    $_POST['name'] = intval( clean_input( $_POST['name'], true ) );
+    $_POST['name'] = clean_input( $_POST['name'] );
     
     $enrolled = array ();
     
@@ -54,13 +54,13 @@ if ( $_SERVER['REQUEST_METHOD'] == 'POST' )
 
 <?php
 echo templateHead( "Course: $courseNumber Details", 
-        array ( '/css/formStyle.css', '/css/detailsStyle.css' ), 
+        array ( '/css/formStyle.css', '/css/detailsStyle.css', '/css/courseDetailsStyle.css' ), 
         array ( '/js/lib/jquery.tablesorter.js', '/js/lib/underscore-min.js', '/js/FormWidget.js', 
                         '/js/CourseDetailsWidget.js' ) );
 ?>
 
 <body>
-    <?= templateHeader(true, true, true)?>
+    <?= templateHeader(true, true, true, true, true)?>
     <div id="content">
 		<form method="POST" enctype="multipart/form-data">
 			<div id="nice_tableBlock">
@@ -68,15 +68,16 @@ echo templateHead( "Course: $courseNumber Details",
 					<tbody>
 						<tr id="numberRow" class="permanent">
 							<td><label for="number">Course Number</label></td>
-							<td><input type="text" id="number" name="number" /></td>
+							<td><input type="text" id="number" name="number" maxlength="15" /></td>
 						</tr>
 						<tr id="nameRow">
 							<td><label for="name">Course Name</label></td>
-							<td><input type="text" id="name" name="name" /></td>
+							<td><input type="text" id="name" name="name" maxlength="60"
+								width="60" /></td>
 						</tr>
 						<tr id="enrolledRow">
 							<td><label for="enrolled">Roster</label></td>
-							<td><input type="enrolled" id="enrolled" name="enrolled" /></td>
+							<td id="enrolled"></td>
 						</tr>
                         <?php
                         if ( isset( $message ) )

@@ -48,7 +48,7 @@ class TASServiceManager
 
     /**
      */
-    const QUERY_COURSE_BY_NUMBER_SQL = 'SELECT Number, Name, Username, Role FROM Course LEFT JOIN UserCourse ON Course.Number=UserCourse.CourseNumber WHERE CourseNumber = ?;';
+    const QUERY_COURSE_BY_NUMBER_SQL = 'SELECT Number, Name, Username, Role FROM Course LEFT JOIN UserCourse ON Course.Number=UserCourse.CourseNumber WHERE Number = ?;';
 
     /**
      */
@@ -179,7 +179,7 @@ class TASServiceManager
         PreparedStatementSetter::setValuesAndExecute( 
                 function ( SQLite3Stmt &$ps ) use($course ) {
                     $ps->bindValue( 1, $course->getNumber(), SQLITE3_TEXT );
-                    $ps->bindValue( 2, sha1( $course->getName() ), SQLITE3_TEXT );
+                    $ps->bindValue( 2, $course->getName(), SQLITE3_TEXT );
                 }, $stmt );
     }
 
@@ -245,8 +245,8 @@ class TASServiceManager
         $stmt = $this->getDB()->prepare( self::UPDATE_COURSE_SQL );
         PreparedStatementSetter::setValuesAndExecute( 
                 function ( SQLite3Stmt &$ps ) use($course ) {
-                    $ps->bindValue( 1, $course->getCourseName() );
-                    $ps->bindValue( 2, $course->getCourseNumber() );
+                    $ps->bindValue( 1, $course->getName() );
+                    $ps->bindValue( 2, $course->getNumber() );
                 }, $stmt );
     }
 
@@ -305,9 +305,14 @@ class TASServiceManager
 
     public function deleteCourse( $courseNumber )
     {
+        // Get the course to delete
+        $course = $this->loadCourseByNumber( $courseNumber );
+        
         // unenroll users
-        foreach ( $this->loadCourseByNumber( $courseNumber )->getEnrolled() as $username )
+        foreach ( $course->getEnrolled() as $username )
             $this->removeUserFromCourse( $username, $courseNumber );
+        
+         // TODO delete all topics for a course
         
         try
         {

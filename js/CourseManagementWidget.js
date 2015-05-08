@@ -94,31 +94,26 @@ var CourseManagementWidget = function()
 
         function deleteCourses()
         {
-            if (confirm("Are you sure you want to delete these courses?"))
+            if (confirm(
+                "Are you sure you want to delete these courses? \
+                \n\nDoing so will: \
+                \n    - Delete all submitted topics for this course \
+                \n    - Remove all users from this course\n\n  Proceed?"))
             {
-                $
-                .each(
-                _.map($(".selectCourse:checked"), function(checkbox)
+                $.each(_.map($(".selectCourse:checked"), function(checkbox)
                 {
                     var course = $(checkbox).attr("course");
                     return $(".courseRow[course=" + course + "]");
-                }),
-                function(i, course)
+                }), function(i, course)
                 {
-                    if (!$(course).children("#Enrolled:empty").length)
-                    {
-                        alert("You can't delete a course with users enrolled!");
-                    } else
-                    {
-                        $.ajax({
-                            async : false,
-                            url : "./deleteCourse.php",
-                            data : {
-                                courseNumber : $(course).attr("course")
-                            },
-                            type : "POST"
-                        }).done(retrieveCourses);
-                    }
+                    $.ajax({
+                        async : false,
+                        url : "./deleteCourse.php",
+                        data : {
+                            courseNumber : $(course).attr("course")
+                        },
+                        type : "POST"
+                    }).done(retrieveCourses);
                 });
             }
         }

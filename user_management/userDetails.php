@@ -89,7 +89,7 @@ echo templateHead( "$username's Details",
 ?>
 
 <body>
-    <?= templateHeader( true, true, false, false, true )?>
+    <?= templateHeader( true, true, true, true, true )?>
     <div id="content">
 		<form method="POST">
 			<div id="nice_tableBlock">

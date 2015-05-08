@@ -138,8 +138,8 @@ abstract class UserDetails
     
     public function toString()
     {
-        return sprintf( "%s (%s %s) <%s> [%s]", $this->username, $this->firstname, $this->lastname, 
-                $this->email, implode( ', ', $this->authorities ) );
+        return sprintf( "%s (%s %s) <%s>%s", $this->username, $this->firstname, $this->lastname, 
+                $this->email, count($this->authorities > 0)? '':' [' . implode( ', ', $this->authorities ) . ']' );
     }
 
     public function clearCredentials()

@@ -4,7 +4,7 @@ include_once PROJECT_ROOT . '/oop/CourseDetails.class.php';
 final class CourseForm extends CourseDetails
 {
 
-    public function __construct( $number, $name, $enrolled )
+    public function __construct( $number, $name, $enrolled = array() )
     {
         parent::__construct( $number, $name, $enrolled );
     }

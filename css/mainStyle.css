@@ -44,8 +44,10 @@ a {
 }
 
 a:visited,
-a:link {
+a:link,
+#menu_Management {
     color: #D00;
+    font-size: 1em;
 }
 
 a:hover {

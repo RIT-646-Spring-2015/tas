@@ -7,7 +7,7 @@ if ( $_SERVER['REQUEST_METHOD'] == 'POST' && $_POST['submitted'] )
     $_POST['number'] = clean_input( $_POST['number'] );
     $_POST['name'] = clean_input( $_POST['name'] );
     
-    $course = new CourseForm( $_POST['number'], $_POST['name'] );
+    $course = new CourseForm( $_POST['number'], $_POST['name'], array() );
     
     $errors = array ();
     $errors = array_merge( CourseFormValidator::validateRequiredFields( $course ), 

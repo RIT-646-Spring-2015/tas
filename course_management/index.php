@@ -14,9 +14,9 @@ if ( !$TAS_DB_MANAGER->isAdmin() )
 <html lang="EN">
 
 <?php
-echo templateHead( "Course Management", array ( 'css/managementStyle.css' ), 
-        array ( 'js/lib/jquery.tablesorter.js', 'js/lib/underscore-min.js', 
-                        'js/CourseManagementWidget.js' ) );
+echo templateHead( "Course Management", array ( '/css/managementStyle.css' ), 
+        array ( '/js/lib/jquery.tablesorter.js', '/js/lib/underscore-min.js', 
+                        '/js/CourseManagementWidget.js' ) );
 ?>
 
 <body>

@@ -1,0 +1,18 @@
+@CHARSET "UTF-8";
+
+.roleHeader {
+	margin: 0;
+	padding 15px;
+	background: #D00;
+	border: 1px black solid;
+	font-weight: normal;
+}
+
+p.roster {
+	margin: 0 0 0 20px;
+	text-align: left;
+}
+
+input {
+	width: 20em;
+}

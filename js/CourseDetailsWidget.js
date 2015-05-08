@@ -30,24 +30,31 @@ var CourseDetailsWidget = function()
                     courseNumber : courseNumber
                 },
                 async : false
-            }).done(function(course)
+            }).done(
+            function(course)
             {
                 // Update fields
-                $(_.keys(course)).each(function()
+                $(_.keys(course)).each(
+                function()
                 {
-                    if ($("#" + this).attr("type") == "checkbox")
+                    if (this == "enrolled")
                     {
-                        $("#" + this).prop("checked", course[this] === 'true');
-                    } else if ($("#" + this).is("table"))
-                    {
-                        parseAuthorities(course);
+                        $.each(course.enrolled, function(role, usernames)
+                        {
+                            $("#enrolled").append(
+                            "<h4 class='roleHeader'>" + role + "</h4>");
+
+                            $.each(usernames, function(i,username)
+                            {
+                                $("#enrolled").append(
+                                "<p class='roster'>" + username + "</p>");
+                            });
+                            
+                        });
                     } else
                     {
-                        if (this != "password")
-                        {
-                            $("#" + this).val(course[this]);
-                            console.log("UPDATED " + this);
-                        }
+                        $("#" + this).val(course[this]);
+                        console.log("UPDATED " + this);
                     }
                 });
             }).responseJSON;
@@ -65,11 +72,9 @@ var CourseDetailsWidget = function()
                     return;
 
                 var unChanged = true;
-                $(".authBox").each(
-                function()
+                $(".authBox").each(function()
                 {
-                    p = _.contains(detail, $(this).attr(
-                    "auth"));
+                    p = _.contains(detail, $(this).attr("auth"));
                     q = this.checked;
 
                     return unChanged = ((!p || q) && (!q || p));
@@ -107,7 +112,8 @@ var CourseDetailsWidget = function()
         $("tr input[type!=button]").on("change input", updateCourseDetails);
 
         // If it was meant to be permanent, disable it!
-        $("tr.permanent input[type!=button][type!=submit]").prop("readonly", true);
+        $("tr.permanent input[type!=button][type!=submit]").prop("readonly",
+        true);
 
         $("tr.permanent input[type=checkbox]").click(function()
         {
