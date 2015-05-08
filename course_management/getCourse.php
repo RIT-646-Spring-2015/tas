@@ -3,21 +3,24 @@ require_once '../lib/lib_tas.php';
 
 redirectIfLoggedOut();
 
-$productId = $_POST['productId'];
+$courseNumber = $_POST['courseNumber'];
 
-$user = $PRODUCT_DB_MANAGER->loadProductByProductId( $productId );
+$course = $TAS_DB_MANAGER->loadCourseByNumber( $courseNumber );
 
-    $result['productId'] = $user->getProductId();
-    $result['product_name'] = $user->getName();
-    $result['price'] = $user->getPrice();
-    $result['quantity'] = $user->getQuantity();
-    $result['onSale'] = $user->isOnSale()? 'true':'false';
-    $result['sale'] = $user->getSalePrice();
-    $result['description'] = $user->getDescription();
-    $result['imagePath'] = $user->getImagePath();
-    $result['imageSitePath'] = $user->getImageSitePath();
-
+    $result['number'] = $course->getNumber();
+    $result['name'] = $course->getName();
+    $result['enrolled'] = array ();
     
-header('Content-Type: application/json');
+    foreach ( $TAS_DB_MANAGER->getAvailableRoles() as $role )
+    {
+        $result['enrolled'][$role] = array ();
+    }
+    
+    foreach ( $course->getEnrolled() as $username => $role )
+    {
+        $result['enrolled'][$role][] = $username;
+    }
+
+header( 'Content-Type: application/json' );
 echo json_encode( $result );
 ?>

@@ -9,19 +9,14 @@ foreach ( $TAS_DB_MANAGER->getCourses() as $courseNumber => $course )
 {
     $result[$courseNumber]['name'] = $course->getName();
     
-    foreach ( $TAS_DB_MANAGER->getAvailableAuthorities() as $auth )
+    foreach ( $TAS_DB_MANAGER->getAvailableRoles() as $role )
     {
-        if ( $auth != $TAS_DB_MANAGER::AUTHORITY_ADMIN )
-            $result[$courseNumber]['enrolled'][$auth] = array ();
+        $result[$courseNumber]['enrolled'][$role] = array ();
     }
     
-    foreach ( $course->getEnrolled() as $username )
+    foreach ( $course->getEnrolled() as $username => $role )
     {
-        $user = $TAS_DB_MANAGER->loadUserByUsername( $username );
-        foreach ( $user->getAuthorities() as $auth )
-        {
-            $result[$courseNumber]['enrolled'][$auth][] = $username;
-        }
+        $result[$courseNumber]['enrolled'][$role][] = $username;
     }
 }
 

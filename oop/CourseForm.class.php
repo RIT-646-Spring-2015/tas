@@ -1,18 +1,24 @@
 <?php
-
 include_once PROJECT_ROOT . '/oop/CourseDetails.class.php';
 
 final class CourseForm extends CourseDetails
 {
-    public function __construct( $productId, $name, $description, $price, $quantity, $onSale,
-        $sale, $imagePath )
+
+    public function __construct( $number, $name, $enrolled )
     {
-        parent::__construct( $productId, $name, $description, $price, $quantity, $onSale,
-        $sale, $imagePath );
+        parent::__construct( $number, $name, $enrolled );
     }
 
     /**
-     * Set the product's name.
+     * Set the course's number.
+     */
+    public function setNumber( $number )
+    {
+        $this->number = $number;
+    }
+
+    /**
+     * Set the course's name.
      */
     public function setName( $name )
     {
@@ -20,51 +26,11 @@ final class CourseForm extends CourseDetails
     }
 
     /**
-     * Set the product's description.
+     * Set the course's enrolled users.
      */
-    public function setDescription( $description )
+    public function setEnrolled( $enrolled )
     {
-        $this->description = $description;
-    }
-
-    /**
-     * Set the product's price.
-     */
-    public function setPrice( $price )
-    {
-        $this->price = $price;
-    }
-
-    /**
-     * Set the product's quantity.
-     */
-    public function setQuantity( $quantity )
-    {
-        $this->quantity = $quantity;
-    }
-    
-    /**
-     * Set whether the product is one sale.
-     */
-    public function setOnSale( $onSale )
-    {
-        $this->onSale = $onSale;
-    }
-
-    /**
-     * Set the product's sale price.
-     */
-    public function setSalePrice( $sale )
-    {
-        $this->sale = $sale;
-    }
-
-    /**
-     * Set the product's image path.
-     */
-    public function setImagePath( $imagePath )
-    {
-        $this->imagePath = $imagePath;
+        $this->enrolled = $enrolled;
     }
 }
 ?>

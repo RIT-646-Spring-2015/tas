@@ -6,8 +6,8 @@ final class TopicMapper
 
     public static function mapRow( $rs )
     {
-        $topic = new Topic( $rs['Name'], $rs['Link'], $rs['SubmissionDate'], $rs['Blacklisted'], 
-                $rs['Status'] );
+        $topic = new Topic( $rs['Name'], $rs['SubmittingUsername'], $rs['CourseNumber'], $rs['Link'], 
+                $rs['SubmissionDate'], $rs['Blacklisted'], $rs['Status'] );
         
         return $topic;
     }
@@ -26,8 +26,6 @@ final class TopicMapper
             if ( array_key_exists( $topic->getName(), $results ) )
             {
                 $inTopic = &$results[$topic->getName()];
-                
-                // merge something?
             } else
             {
                 $results[$topic->getName()] = $topic;

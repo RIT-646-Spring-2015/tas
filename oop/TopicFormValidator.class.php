@@ -20,7 +20,7 @@ class TopicFormValidator
         return $errors;
     }
 
-    public static function validate( TopicForm $product, $newTopic = true )
+    public static function validate( TopicForm $product )
     {
         global $TAS_DB_MANAGER;
         

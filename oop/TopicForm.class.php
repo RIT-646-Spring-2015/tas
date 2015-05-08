@@ -4,9 +4,11 @@ include_once 'TopicDetails.class.php';
 final class TopicForm extends TopicDetails
 {
 
-    public function __construct( $name, $link, $submissionDate, $blacklisted, $status )
+    public function __construct( $name, $submittingUsername, $courseNumber, $link, $submissionDate, 
+            $blacklisted, $status )
     {
-        parent::__construct( $name, $link, $submissionDate, $blacklisted, $status );
+        parent::__construct( $name, $link, $submittingUsername, $courseNumber, $submissionDate, 
+                $blacklisted, $status );
     }
 
     /**
@@ -15,6 +17,28 @@ final class TopicForm extends TopicDetails
     public function setName( $name )
     {
         $this->name = $name;
+    }
+
+    /**
+     * Set the submitting user
+     *
+     * @param string $submittingUsername
+     *            the user that submitted the topic
+     */
+    public function setSubmittingUsername( $submittingUsername )
+    {
+        $this->submittingUsername = $submitttingUsername;
+    }
+
+    /**
+     * Set the course number for the course this topic is submitted for
+     *
+     * @param string $courseNumber
+     *            the course number for the course this topic is submitted for
+     */
+    public function setCourseNumber( $courseNumber )
+    {
+        $this->courseNumber = $courseNumber;
     }
 
     /**

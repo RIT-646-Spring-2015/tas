@@ -29,13 +29,6 @@ var FormWidget = function()
             $('input[type!=button] input[type!=submit]').val('');
         });
 
-        // Currency Formatter
-        $('.currency').blur(function()
-        {
-            $('.currency').formatCurrency();
-        });
-
-        $('.currency').formatCurrency();
         /////////////////////////////
         // Public Instance Methods //
         /////////////////////////////
@@ -46,11 +39,9 @@ var FormWidget = function()
             },
             update : function()
             {
-                $('.currency').formatCurrency();
             },
             log : function(message)
             {
-
             }
         };
     };

@@ -1,12 +1,12 @@
 // Wrap code with module pattern
-var UserDetailsWidget = function()
+var CourseDetailsWidget = function()
 {
     var global = this;
 
     /////////////////////////////////
     // Widget Constructor Function //
     /////////////////////////////////
-    global.makeUserDetailsWidget = function(parentElement)
+    global.makeCourseDetailsWidget = function(parentElement)
     {
         ////////////////////////
         /////    Fields    /////
@@ -14,39 +14,38 @@ var UserDetailsWidget = function()
 
         var container = parentElement;
 
-        var userDetails;
+        var courseDetails;
 
         //////////////////////////////
         // Private Instance Methods //
         //////////////////////////////
         function getDetails()
         {
-            var username = $("#user").html();
-            parseAuthorities;
+            var courseNumber = $("#courseNumber").html();
 
-            userDetails = $.ajax({
-                url : "./getUser.php",
+            courseDetails = $.ajax({
+                url : "./getCourse.php",
                 type : "POST",
                 data : {
-                    username : username
+                    courseNumber : courseNumber
                 },
                 async : false
-            }).done(function(user)
+            }).done(function(course)
             {
                 // Update fields
-                $(_.keys(user)).each(function()
+                $(_.keys(course)).each(function()
                 {
                     if ($("#" + this).attr("type") == "checkbox")
                     {
-                        $("#" + this).prop("checked", user[this] === 'true');
+                        $("#" + this).prop("checked", course[this] === 'true');
                     } else if ($("#" + this).is("table"))
                     {
-                        parseAuthorities(user);
+                        parseAuthorities(course);
                     } else
                     {
                         if (this != "password")
                         {
-                            $("#" + this).val(user[this]);
+                            $("#" + this).val(course[this]);
                             console.log("UPDATED " + this);
                         }
                     }
@@ -54,30 +53,11 @@ var UserDetailsWidget = function()
             }).responseJSON;
         }
 
-        var parseAuthorities = function(user)
-        {
-            // Show the permissions granted to a user
-            $(user.authorities).each(function()
-            {
-                $("input[auth=" + this + "]").prop("checked", true);
-            });
-        }
-
-        function changePassword()
-        {
-            $("#confirmPasswordRow").css("display", "table-row").addClass(
-            "selected");
-            $("#password").val("");
-            $("label[for='password']").val("New Password");
-            $("#passwordRow").addClass("selected");
-            updateClickabilityOfButtons();
-        }
-
-        function updateUserDetails()
+        function updateCourseDetails()
         {
             var field = $(this).attr("id");
 
-            var detail = userDetails[field];
+            var detail = courseDetails[field];
 
             if ($(this).is(".authBox"))
             {
@@ -122,11 +102,9 @@ var UserDetailsWidget = function()
         //////////////////////////////////////////
         // Find Pieces and Enliven DOM Fragment //
         //////////////////////////////////////////
-        getDetails(userDetails);
+        getDetails(courseDetails);
 
-        $("tr input[type!=button]").on("change input", updateUserDetails);
-
-        $("input#changePasswordButton").click(changePassword);
+        $("tr input[type!=button]").on("change input", updateCourseDetails);
 
         // If it was meant to be permanent, disable it!
         $("tr.permanent input[type!=button][type!=submit]").prop("readonly", true);
@@ -160,5 +138,5 @@ var UserDetailsWidget = function()
 
 $(document).ready(function()
 {
-    userDetailsWidget = makeUserDetailsWidget($("#content"));
+    courseDetailsWidget = makeCourseDetailsWidget($("#content"));
 });

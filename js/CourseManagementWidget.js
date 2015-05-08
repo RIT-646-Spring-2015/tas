@@ -20,6 +20,8 @@ var CourseManagementWidget = function()
 
         var updateCourseButton = $("<input id='updateCourse' type='button' value='Update Selected Course'>");
 
+        var addCourseButton = $("<input id='addCourse' type='button' value='Add a Course'>");
+
         var tableHeaders = [ 'Course Number', 'Course Name', 'Roster' ];
 
         //////////////////////////////
@@ -42,7 +44,8 @@ var CourseManagementWidget = function()
 
                     $.each(course.enrolled, function(role, usernames)
                     {
-                        enrolled.append($("<p>").html(role + ': ' + usernames.length));
+                        enrolled.append($("<p>").html(
+                        role + ': ' + usernames.length));
                     });
 
                     $("#niceTable").append(
@@ -56,9 +59,9 @@ var CourseManagementWidget = function()
                     enrolled));
                 });
 
-                ////////////////////
-                // USER SELECTION //
-                ////////////////////
+                //////////////////////
+                // COURSE SELECTION //
+                //////////////////////
                 $(".selectCourse").click(
                 function(event)
                 {
@@ -126,6 +129,11 @@ var CourseManagementWidget = function()
             location = "courseDetails.php?courseNumber=" + course;
         }
 
+        function addCourse()
+        {
+            location = "addCourse.php";
+        }
+
         function updateClickabilityOfButtons()
         {
             switch ($(".selectCourse:checked").length)
@@ -166,8 +174,10 @@ var CourseManagementWidget = function()
 
         updateCourseButton.click(updateCourse);
 
+        addCourseButton.click(addCourse)
+
         $("#nice_tableBlock").append(deleteCoursesButton).append(
-        updateCourseButton);
+        updateCourseButton).append(addCourseButton);
 
         /////////////////////////////
         // Public Instance Methods //

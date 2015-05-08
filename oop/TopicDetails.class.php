@@ -5,6 +5,10 @@ abstract class TopicDetails
 
     protected $name;
 
+    protected $submittingUsername;
+
+    protected $courseNumber;
+
     protected $link;
 
     protected $submissionDate;
@@ -18,6 +22,12 @@ abstract class TopicDetails
      *
      * @param string $name
      *            the topic name.
+     * @param
+     *            string submittingUsername
+     *            the user submitting the topic
+     * @param
+     *            string courseNumber
+     *            the course number for which the topic was submitted for
      * @param string $link
      *            the topic link.
      * @param string $submissionDate
@@ -27,9 +37,12 @@ abstract class TopicDetails
      * @param number $status
      *            the topic's status.
      */
-    public function __construct( $name, $link, $submissionDate, $blacklisted, $status )
+    public function __construct( $name, $submittingUsername, $courseNumber, $link, $submissionDate, 
+            $blacklisted, $status )
     {
         $this->name = $name;
+        $this->submittingUsername = $submittingUsername;
+        $this->courseNumber = $courseNumber;
         $this->link = $link;
         $this->submissionDate = $submissionDate;
         $this->blacklisted = $blacklisted;
@@ -44,6 +57,26 @@ abstract class TopicDetails
     public function getName()
     {
         return $this->name;
+    }
+
+    /**
+     * Get the course number this topic was originally submitted for.
+     *
+     * @return the course number this topic was submitted for.
+     */
+    public function getCourseNumber()
+    {
+        return $this->courseNumber;
+    }
+
+    /**
+     * Get the username of the user who submitted this topic.
+     *
+     * @return the username of the user who submitted this topic.
+     */
+    public function getSubmittingUsername()
+    {
+        return $this->submittingUsername;
     }
 
     /**

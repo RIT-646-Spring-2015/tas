@@ -1,12 +1,12 @@
 <?php
 require_once '../lib/lib_tas.php';
 
-header('Content-Type: application/json');
+header( 'Content-Type: application/json' );
 
 $username = $_POST['username'];
-$productId = $_POST['productId'];
-$newQuantity = $_POST['newQuantity'];
+$courseNumber = $_POST['courseNumber'];
+$role = $_POST['role'];
 
-echo json_encode( $PRODUCT_DB_MANAGER->updateProductInCart( $username, $productId, $newQuantity ) );
+echo json_encode( $TAS_DB_MANAGER->addUserToCourse( $username, $courseNumber, $role ) );
 ?>
  

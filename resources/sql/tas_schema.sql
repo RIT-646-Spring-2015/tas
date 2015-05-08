@@ -41,24 +41,6 @@ CREATE TABLE IF NOT EXISTS `Status` (
 
 
 -- -----------------------------------------------------
--- Table `Topic`
--- -----------------------------------------------------
-DROP TABLE IF EXISTS `Topic`;
-
-CREATE TABLE IF NOT EXISTS `Topic` (
-  `Name` VARCHAR(60) NOT NULL,
-  `Link` VARCHAR(1000) NULL,
-  `SubmissionDate` DATETIME DEFAULT (DATETIME('NOW', 'LOCALTIME')) NOT NULL,
-  `Blacklisted` TINYINT(1) DEFAULT 0 NOT NULL,
-  `Status` VARCHAR(10) DEFAULT 'SUBMITTED' NOT NULL,
-  PRIMARY KEY (`Name`),
-  FOREIGN KEY (`Status`)
-    REFERENCES `Status` (`Name`)
-    ON DELETE NO ACTION
-    ON UPDATE NO ACTION);
-
-
--- -----------------------------------------------------
 -- Table `Course`
 -- -----------------------------------------------------
 DROP TABLE IF EXISTS `Course`;
@@ -67,6 +49,34 @@ CREATE TABLE IF NOT EXISTS `Course` (
   `Number` VARCHAR(15) NOT NULL,
   `Name` VARCHAR(60) NOT NULL,
   PRIMARY KEY (`Number`));
+  
+
+-- -----------------------------------------------------
+-- Table `Topic`
+-- -----------------------------------------------------
+DROP TABLE IF EXISTS `Topic`;
+
+CREATE TABLE IF NOT EXISTS `Topic` (
+  `Name` VARCHAR(60) NOT NULL,
+  `SubmittingUsername` VARCHAR(20) NOT NULL,
+  `CourseNumber` VARCHAR(15) NOT NULL,
+  `Link` VARCHAR(1000) NULL,
+  `SubmissionDate` DATETIME DEFAULT (DATETIME('NOW', 'LOCALTIME')) NOT NULL,
+  `Blacklisted` TINYINT(1) DEFAULT 0 NOT NULL,
+  `Status` VARCHAR(10) DEFAULT 'SUBMITTED' NOT NULL,
+  PRIMARY KEY (`Name`),
+  FOREIGN KEY (`SubmittingUsername`)
+    REFERENCES `User` (`Username`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION,
+  FOREIGN KEY (`CourseNumber`)
+    REFERENCES `Course` (`Number`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION,
+  FOREIGN KEY (`Status`)
+    REFERENCES `Status` (`Name`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION);
 
 
 -- -----------------------------------------------------
@@ -89,30 +99,6 @@ CREATE TABLE IF NOT EXISTS `UserCourse` (
     ON UPDATE NO ACTION,
   FOREIGN KEY (`Role`)
     REFERENCES `Role` (`Name`)
-    ON DELETE NO ACTION
-    ON UPDATE NO ACTION);
-
-
--- -----------------------------------------------------
--- Table `UserCourseUserTopic`
--- -----------------------------------------------------
-DROP TABLE IF EXISTS `UserCourseUserTopic`;
-
-CREATE TABLE IF NOT EXISTS `UserCourseUserTopic` (
-  `Username` VARCHAR(20) NOT NULL,
-  `UserTopicName` VARCHAR(60) NOT NULL,
-  `UserCourseNumber` VARCHAR(15) NOT NULL,
-  PRIMARY KEY (`Username`, `UserTopicName`, `UserCourseNumber`),
-  FOREIGN KEY (`Username`)
-    REFERENCES `User` (`Username`)
-    ON DELETE NO ACTION
-    ON UPDATE NO ACTION,
-  FOREIGN KEY (`UserTopicName`)
-    REFERENCES `Topic` (`Name`)
-    ON DELETE NO ACTION
-    ON UPDATE NO ACTION,
-  FOREIGN KEY (`Username`, `UserCourseNumber`)
-    REFERENCES `UserCourse` (`Username`, `CourseNumber`)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION);
 
@@ -209,6 +195,14 @@ COMMIT;
 BEGIN TRANSACTION;
 INSERT INTO `UserCourse` (`Username`, `CourseNumber`, `Role`) VALUES ('tom', '101-01', 'TA');
 INSERT INTO `UserCourse` (`Username`, `CourseNumber`, `Role`) VALUES ('stan', '101-01', 'STUDENT');
+
+COMMIT;
+
+-- -----------------------------------------------------
+-- Data for table `Topic`
+-- -----------------------------------------------------
+BEGIN TRANSACTION;
+INSERT INTO `Topic` (`Name`, `SubmittingUsername`, `CourseNumber`, `Link`) VALUES ('Steve Jobs', 'stan', '101-01', 'http://en.wikipedia.org/wiki/Steve_Jobs');
 
 COMMIT;
 

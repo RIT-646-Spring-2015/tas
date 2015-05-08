@@ -47,18 +47,28 @@ abstract class CourseDetails
     }
 
     /**
-     * Get the users involved in this course;
+     * Get the users involved in this course.
      *
-     * @return the usernames enrolled in this course;
+     * @return the usernames enrolled in this course.
      */
-    public function getEnrolled()
+    public function &getEnrolled()
     {
         return $this->enrolled;
     }
 
     public function toString()
     {
-        return sprintf( "Course: %d: %s", $this->number, $this->name );
+        $enrolled = '';
+        $i = 0;
+        foreach ( $this->enrolled as $username => $role )
+        {
+            $enrolled .= $username . ':' . $role;
+            if ( ++$i < count( $this->enrolled ) )
+            {
+                $enrolled .= ', ';
+            }
+        }
+        return sprintf( "Course: %d: %s [%s]", $this->number, $this->name, $enrolled );
     }
 }
 

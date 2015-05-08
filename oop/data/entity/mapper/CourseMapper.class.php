@@ -6,7 +6,7 @@ final class CourseMapper
 
     public static function mapRow( $rs )
     {
-        $enrolled = $rs['Username'] == null ? array () : array ( $rs['Username'] );
+        $enrolled = $rs['Username'] == null ? array () : array ( $rs['Username'] => $rs['Role'] );
         
         $course = new Course( $rs['Number'], $rs['Name'], $enrolled );
         
@@ -29,7 +29,7 @@ final class CourseMapper
                 $inCourse = &$results[$course->getNumber()];
                 
                 $enrolled = &$inCourse->getEnrolled();
-                $enrolled = array_merge( $enrolled, $course->getEnrolled() );
+                $enrolled = array_merge_recursive( $enrolled, $course->getEnrolled() );
             } else
             {
                 $results[$course->getNumber()] = $course;

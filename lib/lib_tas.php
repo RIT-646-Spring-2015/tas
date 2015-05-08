@@ -240,8 +240,6 @@ function templateHeader(
         $topicManagementOption = false, 
         $courseManagementOption = false,
         $userManagementOption = false,
-        $viewCartOption = false, 
-        $continueShoppingOption = false,
         $loginIfLoggedOut = false )
 {
     // @formatter:on
@@ -252,7 +250,7 @@ function templateHeader(
     $header .= "></div>";
     
     if ( ( $user = $TAS_DB_MANAGER->getCurrentUser() ) == null )
-        $linkProfile = $logoutOption = $topicManagementOption = $courseManagementOption = $userManagementOption = $viewCartOption = $continueShoppingOption = false;
+        $linkProfile = $logoutOption = $topicManagementOption = $courseManagementOption = $userManagementOption = false;
     else $loginIfLoggedOut = false;
     
     if ( $loginIfLoggedOut )
@@ -270,12 +268,6 @@ function templateHeader(
     
     if ( $courseManagementOption && $TAS_DB_MANAGER->isAdmin() )
         $header .= COURSEMANAGEMENT_OPTION;
-    
-    if ( $viewCartOption )
-        $header .= VIEW_CART_OPTION;
-    
-    if ( $continueShoppingOption )
-        $header .= CONTINUE_SHOPPING_OPTION;
     
     return $header;
 }

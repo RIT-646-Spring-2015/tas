@@ -1,6 +1,8 @@
 <?php
 require_once 'util/PreparedStatementSetter.class.php';
 require_once 'exceptions/UsernameNotFoundException.class.php';
+require_once 'exceptions/CourseNotFoundException.class.php';
+require_once 'exceptions/TopicNotFoundException.class.php';
 require_once 'exceptions/InadequateRightsException.class.php';
 
 require_once 'entity/mapper/UserMapper.class.php';
@@ -14,7 +16,7 @@ class TASServiceManager
 
     /**
      */
-    const SELECT_ALL_USERS_SQL = 'SELECT User.Username, Password, Enabled, FirstName, LastName, Email, DateJoined, LastOnline, AuthorityName FROM User LEFT JOIN UserAuthority ON User.Username=UserAuthority.Username;';
+    const SELECT_ALL_USERS_SQL = 'SELECT User.Username, Password, Enabled, FirstName, LastName, Email, DateJoined, LastOnline, AuthorityName, CourseNumber, Role FROM User LEFT JOIN UserAuthority ON User.Username=UserAuthority.Username LEFT JOIN UserCourse ON User.Username=UserCourse.Username;';
 
     /**
      */
@@ -34,7 +36,7 @@ class TASServiceManager
 
     /**
      */
-    const SELECT_ALL_TOPICS_SQL = 'SELECT Name, Link, SubmissionDate, Blacklisted, Status FROM Topic;';
+    const SELECT_ALL_TOPICS_SQL = 'SELECT Name, SubmittingUsername, CourseNumber, Link, SubmissionDate, Blacklisted, Status FROM Topic;';
 
     /**
      */
@@ -42,7 +44,15 @@ class TASServiceManager
 
     /**
      */
-    const QUERY_USER_BY_USERNAME = 'SELECT User.Username, Password, Enabled, FirstName, LastName, Email, DateJoined, LastOnline, AuthorityName FROM User LEFT JOIN UserAuthority ON User.Username=UserAuthority.Username WHERE User.Username = ?;';
+    const QUERY_USER_BY_USERNAME_SQL = 'SELECT User.Username, Password, Enabled, FirstName, LastName, Email, DateJoined, LastOnline, AuthorityName FROM User LEFT JOIN UserAuthority ON User.Username=UserAuthority.Username WHERE User.Username = ?;';
+
+    /**
+     */
+    const QUERY_COURSE_BY_NUMBER_SQL = 'SELECT Number, Name, Username, Role FROM Course LEFT JOIN UserCourse ON Course.Number=UserCourse.CourseNumber WHERE CourseNumber = ?;';
+
+    /**
+     */
+    const QUERY_TOPIC_BY_NAME_SQL = 'SELECT Name, SubmittingUsername, CourseNumber, Link, SubmissionDate, Blacklisted, Status FROM Topic WHERE Name = ?;';
 
     /**
      */
@@ -54,6 +64,10 @@ class TASServiceManager
 
     /**
      */
+    const NEW_COURSE_SQL = 'INSERT INTO Course (Number, Name) VALUES ( ?, ? );';
+
+    /**
+     */
     const DELETE_USER_SQL = 'DELETE FROM User WHERE Username = ?;';
 
     /**
@@ -62,7 +76,27 @@ class TASServiceManager
 
     /**
      */
+    const DELETE_COURSE_SQL = 'DELETE FROM Course WHERE Number = ?;';
+
+    /**
+     */
+    const DELETE_USER_COURSE_USER_TOPIC_SQL = 'DELETE FROM UserCourseUserTopic WHERE Username = ? AND UserTopicName = ? AND UserCourseNumber = ?;';
+
+    /**
+     */
+    const DELETE_USER_COURSE_SQL = 'DELETE FROM UserCourse WHERE Username = ? AND CourseNumber = ?;';
+
+    /**
+     */
     const UPDATE_USER_SQL = 'UPDATE User SET Enabled = ?, FirstName = ?, LastName = ?, Email = ? WHERE Username = ?;';
+
+    /**
+     */
+    const UPDATE_COURSE_SQL = 'UPDATE Course SET Name = ? WHERE Number = ?;';
+
+    /**
+     */
+    const UPDATE_TOPIC_SQL = 'UPDATE Topic SET SubmittingUsername = ?, CourseNumber = ?, Link = ?, SubmissionDate = ?, Blacklisted = ?, Status = ?, WHERE Name = ?;';
 
     /**
      */
@@ -79,6 +113,12 @@ class TASServiceManager
     const ROLE_TA = 'TA';
 
     const ROLE_STUDENT = 'STUDENT';
+
+    const TOPIC_STATUS_SUBMITTED = 'SUBMITTED';
+
+    const TOPIC_STATUS_APPROVED = 'APPROVED';
+
+    const TOPIC_STATUS_REJECTED = 'REJECTED';
 
     /**
      * This is a Singleton architecture I am trying to acheive.
@@ -133,6 +173,26 @@ class TASServiceManager
                 }, $stmt );
     }
 
+    public function createCourse( CourseForm $course )
+    {
+        $stmt = $this->getDB()->prepare( self::NEW_COURSE_SQL );
+        PreparedStatementSetter::setValuesAndExecute( 
+                function ( SQLite3Stmt &$ps ) use($course ) {
+                    $ps->bindValue( 1, $course->getNumber(), SQLITE3_TEXT );
+                    $ps->bindValue( 2, sha1( $course->getName() ), SQLITE3_TEXT );
+                }, $stmt );
+    }
+
+    public function createTopic( TopicForm $course )
+    {
+        $stmt = $this->getDB()->prepare( self::NEW_COURSE_SQL );
+        PreparedStatementSetter::setValuesAndExecute( 
+                function ( SQLite3Stmt &$ps ) use($course ) {
+                    $ps->bindValue( 1, $course->getNumber(), SQLITE3_TEXT );
+                    $ps->bindValue( 2, sha1( $course->getName() ), SQLITE3_TEXT );
+                }, $stmt );
+    }
+
     public function loggedIn( User $user )
     {
         echo htmlentities( $user->toString() );
@@ -178,6 +238,39 @@ class TASServiceManager
         }
     }
 
+    public function updateCourse( CourseDetails $course )
+    {
+        $this->failIfNotAdmin();
+        
+        $stmt = $this->getDB()->prepare( self::UPDATE_COURSE_SQL );
+        PreparedStatementSetter::setValuesAndExecute( 
+                function ( SQLite3Stmt &$ps ) use($course ) {
+                    $ps->bindValue( 1, $course->getCourseName() );
+                    $ps->bindValue( 2, $course->getCourseNumber() );
+                }, $stmt );
+    }
+
+    public function updateTopic( TopicDetails $topic )
+    {
+        if ( $this->getCurrentUser()->getUsername() != $topic->getSubmittingUsername() )
+        {
+            $this->gailIfNotAdmin( 
+                    'To update a topic, you must be the one who submitted the topic or be an administrator.' );
+        }
+        
+        $stmt = $this->getDB()->prepare( self::UPDATE_TOPIC_SQL );
+        PreparedStatementSetter::setValuesAndExecute( 
+                function ( SQLite3Stmt &$ps ) use($topic ) {
+                    $ps->bindValue( 1, $topic->getSubmittingUsername() );
+                    $ps->bindValue( 2, $topic->getCourseNumber() );
+                    $ps->bindValue( 3, $topic->getLink() );
+                    $ps->bindValue( 4, $topic->getSubmissionDate() );
+                    $ps->bindValue( 5, $topic->getBlacklisted() );
+                    $ps->bindValue( 6, $topic->getStatus() );
+                    $ps->bindValue( 7, $topic->getName() );
+                }, $stmt );
+    }
+
     public function deleteUser( $username )
     {
         try
@@ -187,18 +280,84 @@ class TASServiceManager
             
             $this->failIfNotAdmin();
             
+            $user = $this->loadUserByUsername( $username );
+            
+            // Remove this user from all their courses
+            foreach ( $user->getCoursesEnrolledIn() as $courseNumber )
+            {
+                $this->removeUserFromCourse( $username, $courseNumber );
+            }
+            
+            // Remove this user's topic proposals
+            
+
             $this->deleteUserAuthorities( $username );
             
             $stmt = $this->getDB()->prepare( self::DELETE_USER_SQL );
             $stmt->bindParam( 1, $username, SQLITE3_TEXT );
             
             $stmt->execute();
-            
-            $PRODUCT_DB_MANAGER->deleteUserCart( $username );
         } catch ( Exception $e )
         {
             echo $e->getMessage();
         }
+    }
+
+    public function deleteCourse( $courseNumber )
+    {
+        // unenroll users
+        foreach ( $this->loadCourseByNumber( $courseNumber )->getEnrolled() as $username )
+            $this->removeUserFromCourse( $username, $courseNumber );
+        
+        try
+        {
+            $this->failIfNotAdmin();
+            
+            $stmt = $this->getDB()->prepare( self::DELETE_COURSE_SQL );
+            $stmt->bindParam( 1, $courseNumber, SQLITE3_TEXT );
+            
+            $stmt->execute();
+        } catch ( Exception $e )
+        {
+            echo $e->getMessage();
+        }
+    }
+
+    public function removeUserFromCourse( $username, $courseNumber )
+    {
+        try
+        {
+            $this->failIfNotAdmin();
+            
+            $stmt = $this->getDB()->prepare( self::DELETE_USER_COURSE_SQL );
+            $stmt->bindParam( 1, $username, SQLITE3_TEXT );
+            $stmt->bindParam( 2, $courseNumber, SQLITE3_TEXT );
+            
+            $stmt->execute();
+        } catch ( Exception $e )
+        {
+            echo $e->getMessage();
+        }
+        
+        $stmt->execute();
+    }
+
+    public function removeTopicProposal( $username, $topicName, $courseNumber )
+    {
+        $currentUser = $this->getCurrentUser();
+        
+        if ( $currentUser->getUsername() != $username &&
+                 !$currentUser->hasAuthority( self::AUTHORITY_ADMIN ) )
+        {
+            throw new Exception( 'You do not have the authority to delete someone else\'s topic' );
+        }
+        
+        $stmt = $this->getDB()->prepare( self::DELETE_USER_COURSE_USER_TOPIC_SQL );
+        $stmt->bindParam( 1, $username, SQLITE3_TEXT );
+        $stmt->bindParam( 2, $topicName, SQLITE3_TEXT );
+        $stmt->bindParam( 3, $courseNumber, SQLITE3_TEXT );
+        
+        $stmt->execute();
     }
 
     private function insertUserAuthorities( UserDetails $user, $auth )
@@ -344,19 +503,53 @@ class TASServiceManager
      */
     public function loadUserByUsername( $username )
     {
-        $stmt = $this->getDB()->prepare( self::QUERY_USER_BY_USERNAME );
+        $stmt = $this->getDB()->prepare( self::QUERY_USER_BY_USERNAME_SQL );
         $stmt->bindParam( 1, $username, SQLITE3_TEXT );
         
         $result = $stmt->execute();
         
         $users = UserMapper::extractData( $result );
         
-        if ( count( $users ) == 0 )
+        if ( count( $users ) <= 0 )
         {
             throw new UsernameNotFoundException( $username );
         }
         
         return $users[$username];
+    }
+
+    public function loadCourseByNumber( $courseNumber )
+    {
+        $stmt = $this->getDB()->prepare( self::QUERY_COURSE_BY_NUMBER_SQL );
+        $stmt->bindParam( 1, $courseNumber, SQLITE3_TEXT );
+        
+        $result = $stmt->execute();
+        
+        $courses = CourseMapper::extractData( $result );
+        
+        if ( count( $courses ) <= 0 )
+        {
+            throw new CourseNotFoundException( $courseNumber );
+        }
+        
+        return $courses[$courseNumber];
+    }
+
+    public function loadTopicByName( $topicName )
+    {
+        $stmt = $this->getDB()->prepare( self::QUERY_TOPIC_BY_NAME_SQL );
+        $stmt->bindParam( 1, $topicName, SQLITE3_TEXT );
+        
+        $result = $stmt->execute();
+        
+        $topics = TopicMapper::extractData( $result );
+        
+        if ( count( $topics ) <= 0 )
+        {
+            throw new TopicNotFoundException( $topicName );
+        }
+        
+        return $topics[$topicName];
     }
 }
 ?>
