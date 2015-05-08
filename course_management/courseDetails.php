@@ -79,6 +79,10 @@ echo templateHead( "Course: $courseNumber Details",
 							<td><label for="enrolled">Roster</label></td>
 							<td id="enrolled"></td>
 						</tr>
+						<tr id="topicsRow">
+							<td><label for="topics">Proposed Topics</label></td>
+							<td id="topics"></td>
+						</tr>
                         <?php
                         if ( isset( $message ) )
                         {

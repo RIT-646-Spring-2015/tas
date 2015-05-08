@@ -1,6 +1,5 @@
 <?php
-
-define( 'PROJECT_ROOT', realpath( dirname(__FILE__) . '/../' ) );
+define( 'PROJECT_ROOT', realpath( dirname( __FILE__ ) . '/../' ) );
 
 
 /*
@@ -75,6 +74,23 @@ session_start();
  * Helper Functions
  * * * * * * * * *
  */
+function array_merge_recursive_distinct( array &$array1, array &$array2 )
+{
+    $merged = $array1;
+    
+    foreach ( $array2 as $key => &$value )
+    {
+        if ( is_array( $value ) && isset( $merged[$key] ) && is_array( $merged[$key] ) )
+        {
+            $merged[$key] = array_merge_recursive_distinct( $merged[$key], $value );
+        } else
+        {
+            $merged[$key] = $value;
+        }
+    }
+    
+    return $merged;
+}
 
 /**
  * Redirect user if they are logged in.
@@ -170,7 +186,7 @@ function clean_input( $data, $currency = false )
  *            the paths to any javascript scripts to add
  * @return string the template head tag element
  */
-function templateHead( $title = "Page", $styles, $scripts )
+function templateHead( $title = "Page", $styles = array(), $scripts = array() )
 {
     // head tag beginning
     $head = '
@@ -182,8 +198,7 @@ function templateHead( $title = "Page", $styles, $scripts )
 <meta name="author" content="Alex Aiezza">
 
 <link rel="stylesheet" type="text/css" href="' . SITE_ROOT . '/css/mainStyle.css">
-<link rel="stylesheet" type="text/css" href="' .
-             SITE_ROOT . '/css/lib/perfect-scrollbar.min.css">
+<link rel="stylesheet" type="text/css" href="' . SITE_ROOT . '/css/lib/perfect-scrollbar.min.css">
 <link rel="stylesheet" type="text/css" href="' . SITE_ROOT . '/css/lib/jquery-ui.css">
 
 ';

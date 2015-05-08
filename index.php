@@ -2,6 +2,7 @@
 require_once './lib/lib_tas.php';
 
 redirectIfLoggedOut();
+redirectIfLoggedIn();
 
 ?>
 
@@ -9,15 +10,15 @@ redirectIfLoggedOut();
 <html lang="EN">
 
 <?php
-echo templateHead( "Topic Approval System", 
-        array ( "css/lib/perfect-scrollbar.min.css" ), 
-        array ( "js/lib/underscore-min.js", "js/lib/perfect-scrollbar.min.js" ) );
+echo templateHead( "Topic Approval System" );
 ?>
 
 <body>
 
     <?= templateHeader( true, true, true, false, true, false, true )?>
-    <div id="content"></div>
+    <div id="content">
+		<h3>How did you get here?</h3>
+	</div>
 </body>
 <span id="user"><?= $username ?></span>
 

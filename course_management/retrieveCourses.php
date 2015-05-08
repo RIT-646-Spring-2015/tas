@@ -18,6 +18,12 @@ foreach ( $TAS_DB_MANAGER->getCourses() as $courseNumber => $course )
     {
         $result[$courseNumber]['enrolled'][$role][] = $username;
     }
+    
+    $result[$courseNumber]['topics'] = array();
+    foreach ( $course->getTopics() as $topicName => $username )
+    {
+        $result[$courseNumber]['topics'][$topicName] = $username;
+    }
 }
 
 echo json_encode( $result );

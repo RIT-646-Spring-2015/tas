@@ -7,12 +7,13 @@ final class Course extends CourseDetails
 
     public static function courseFromForm( CourseForm $form )
     {
-        return new Course( $form->getNumber(), $form->getName(), array () );
+        return new Course( $form->getNumber(), $form->getName(), $form->getEnrolled(), 
+                $form->getTopics() );
     }
 
-    public function addUser( User $user )
+    public function addUser( $username, $role )
     {
-        $this->usersInvolved[] = $user;
+        $this->enrolled[$username] = $role;
     }
 }
 ?>

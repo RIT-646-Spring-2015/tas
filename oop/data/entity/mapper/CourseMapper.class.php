@@ -8,7 +8,10 @@ final class CourseMapper
     {
         $enrolled = $rs['Username'] == null ? array () : array ( $rs['Username'] => $rs['Role'] );
         
-        $course = new Course( $rs['Number'], $rs['Name'], $enrolled );
+        $topics = $rs['TopicName'] == null ? array () : array ( 
+                        $rs['TopicName'] => $rs['SubmittingUsername'] );
+        
+        $course = new Course( $rs['Number'], $rs['CourseName'], $enrolled, $topics );
         
         return $course;
     }
@@ -26,10 +29,15 @@ final class CourseMapper
             
             if ( array_key_exists( $course->getNumber(), $results ) )
             {
+                // combine list of enrolled users
                 $inCourse = &$results[$course->getNumber()];
                 
                 $enrolled = &$inCourse->getEnrolled();
-                $enrolled = array_merge_recursive( $enrolled, $course->getEnrolled() );
+                $enrolled = array_merge_recursive_distinct( $enrolled, $course->getEnrolled() );
+                
+                // combine list of topics
+                $topics = &$inCourse->getTopics();
+                $topics = array_merge_recursive_distinct( $topics, $course->getTopics() );
             } else
             {
                 $results[$course->getNumber()] = $course;

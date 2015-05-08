@@ -22,7 +22,28 @@ var CourseManagementWidget = function()
 
         var addCourseButton = $("<input id='addCourse' type='button' value='Add a Course'>");
 
-        var tableHeaders = [ 'Course Number', 'Course Name', 'Roster' ];
+        var tableHeaders = [ 'Course Number', 'Course Name', 'Roster',
+            'Proposed Topics' ];
+
+        var courseRowTemplate = _
+        .template("<tr class='courseRow' course='<%= courseNumber %>'> \
+              <td> \
+                <input class='selectCourse' course='<%= courseNumber %>' type='checkbox'> \
+                <span><%= courseNumber %></span> \
+              </td> \
+              <td> \
+                <span><%= name %></span> \
+              </td> \
+              <td id='enrolled'> \
+                <% $.each( enrolled, function(role, usernames) { %> \
+                  <p><%= role %>: <%= usernames.length %></p> \
+                <% }); %> \
+              </td> \
+              <td id='topics'> \
+                <% $.each( topics, function(topicName, username) { %> \
+                  <p><%= topicName %>: <%= username %></p> \
+                <% }); %> \
+              </td>");
 
         //////////////////////////////
         // Private Instance Methods //
@@ -40,23 +61,8 @@ var CourseManagementWidget = function()
             {
                 $.each(courses, function(courseNumber, course)
                 {
-                    enrolled = $("<td id='Enrolled'>");
-
-                    $.each(course.enrolled, function(role, usernames)
-                    {
-                        enrolled.append($("<p>").html(
-                        role + ': ' + usernames.length));
-                    });
-
-                    $("#niceTable").append(
-                    $("<tr class='courseRow' course='" + courseNumber + "'>")
-                    .append(
-                    $("<td>").append(
-                    $("<span>" + courseNumber + "</span>").prepend(
-                    $("<input class='selectCourse' course='" + courseNumber
-                    + "' type='checkbox'>")))).append(
-                    $("<td><span>" + course.name + "</span></td>")).append(
-                    enrolled));
+                    course.courseNumber = courseNumber;
+                    $("#niceTable").append(courseRowTemplate(course));
                 });
 
                 //////////////////////
@@ -87,6 +93,9 @@ var CourseManagementWidget = function()
 
                 $("#niceTable").trigger("update");
 
+            }).fail(function(message)
+            {
+                console.error(message.responseText);
             });
 
             updateClickabilityOfButtons();
@@ -94,8 +103,7 @@ var CourseManagementWidget = function()
 
         function deleteCourses()
         {
-            if (confirm(
-                "Are you sure you want to delete these courses? \
+            if (confirm("Are you sure you want to delete these courses? \
                 \n\nDoing so will: \
                 \n    - Delete all submitted topics for this course \
                 \n    - Remove all users from this course\n\n  Proceed?"))

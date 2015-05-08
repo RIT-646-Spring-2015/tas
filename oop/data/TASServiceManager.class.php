@@ -28,7 +28,7 @@ class TASServiceManager
 
     /**
      */
-    const SELECT_ALL_COURSES_SQL = 'SELECT Number, Name, Username, Role FROM Course LEFT JOIN UserCourse ON Course.Number=UserCourse.CourseNumber;';
+    const SELECT_ALL_COURSES_SQL = 'SELECT Number, Course.Name AS CourseName, Username, Role, Topic.Name AS TopicName, SubmittingUsername FROM Course LEFT JOIN UserCourse ON Course.Number=UserCourse.CourseNumber LEFT JOIN Topic ON Course.Number=Topic.CourseNumber;';
 
     /**
      */
@@ -48,11 +48,15 @@ class TASServiceManager
 
     /**
      */
-    const QUERY_COURSE_BY_NUMBER_SQL = 'SELECT Number, Name, Username, Role FROM Course LEFT JOIN UserCourse ON Course.Number=UserCourse.CourseNumber WHERE Number = ?;';
+    const QUERY_COURSE_BY_NUMBER_SQL = 'SELECT Number, Course.Name AS CourseName, Username, Role, Topic.Name AS TopicName, SubmittingUsername FROM Course LEFT JOIN UserCourse ON Course.Number=UserCourse.CourseNumber LEFT JOIN Topic ON Course.Number=Topic.CourseNumber WHERE Number = ?;';
 
     /**
      */
     const QUERY_TOPIC_BY_NAME_SQL = 'SELECT Name, SubmittingUsername, CourseNumber, Link, SubmissionDate, Blacklisted, Status FROM Topic WHERE Name = ?;';
+
+    /**
+     */
+    const QUERY_TOPICS_BY_COURSE_SQL = 'SELECT Name, SubmittingUsername, CourseNumber, Link, SubmissionDate, Blacklisted, Status FROM Topic WHERE CourseNumber = ?;';
 
     /**
      */
@@ -311,8 +315,8 @@ class TASServiceManager
         // unenroll users
         foreach ( $course->getEnrolled() as $username )
             $this->removeUserFromCourse( $username, $courseNumber );
-        
-         // TODO delete all topics for a course
+            
+            // TODO delete all topics for a course
         
         try
         {
@@ -555,6 +559,18 @@ class TASServiceManager
         }
         
         return $topics[$topicName];
+    }
+
+    public function loadTopicsByCourseNumber( $courseNumber )
+    {
+        $stmt = $this->getDB()->prepare( self::QUERY_TOPICS_BY_COURSE_SQL );
+        $stmt->bindParam( 1, $courseNumber, SQLITE3_TEXT );
+        
+        $result = $stmt->execute();
+        
+        $topics = TopicMapper::extractData( $result );
+        
+        return $topics;
     }
 }
 ?>
