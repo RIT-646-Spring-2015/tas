@@ -1,16 +1,15 @@
 <?php
-require dirname(__FILE__) . '/../Topic.class.php';
+require dirname( __FILE__ ) . '/../Topic.class.php';
 
 final class TopicMapper
 {
+
     public static function mapRow( $rs )
     {
-        $roles = array ( $rs['RoleName'] );
+        $topic = new Topic( $rs['Name'], $rs['Link'], $rs['SubmissionDate'], $rs['Blacklisted'], 
+                $rs['Status'] );
         
-        $user = new User( $rs['Username'], $rs['Password'], $rs['FirstName'], $rs['LastName'], 
-                $rs['Email'], $rs['DateJoined'], $rs['LastOnline'], $rs['Enabled'], $roles );
-        
-        return $user;
+        return $topic;
     }
 
     public static function extractData( $rs )
@@ -19,20 +18,19 @@ final class TopicMapper
         
         while ( $res = $rs->fetchArray( SQLITE3_ASSOC ) )
         {
-            if ( !isset( $res['Username'] ) )
+            if ( !isset( $res['Name'] ) )
                 continue;
             
-            $user = self::mapRow( $res );
+            $topic = self::mapRow( $res );
             
-            if ( array_key_exists( $user->getUsername(), $results ) )
+            if ( array_key_exists( $topic->getName(), $results ) )
             {
-                $inUser = &$results[$user->getUsername()];
+                $inTopic = &$results[$topic->getName()];
                 
-                $auths = &$inUser->getAuthorities();
-                $auths = array_merge( $auths, $user->getAuthorities() );
+                // merge something?
             } else
             {
-                $results[$user->getUsername()] = $user;
+                $results[$topic->getName()] = $topic;
             }
         }
         

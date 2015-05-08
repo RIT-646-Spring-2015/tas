@@ -57,6 +57,8 @@ var UserDetailsWidget = function()
         var parseAuthorities = function(user)
         {
             // Show the permissions granted to a user
+            if (user.authorities.length <= 0)
+                return;
             $(user.authorities).each(function()
             {
                 $("input[auth=" + this + "]").prop("checked", true);
@@ -85,11 +87,9 @@ var UserDetailsWidget = function()
                     return;
 
                 var unChanged = true;
-                $(".authBox").each(
-                function()
+                $(".authBox").each(function()
                 {
-                    p = _.contains(detail, $(this).attr(
-                    "auth"));
+                    p = _.contains(detail, $(this).attr("auth"));
                     q = this.checked;
 
                     return unChanged = ((!p || q) && (!q || p));
@@ -129,7 +129,8 @@ var UserDetailsWidget = function()
         $("input#changePasswordButton").click(changePassword);
 
         // If it was meant to be permanent, disable it!
-        $("tr.permanent input[type!=button][type!=submit]").prop("readonly", true);
+        $("tr.permanent input[type!=button][type!=submit]").prop("readonly",
+        true);
 
         $("tr.permanent input[type=checkbox]").click(function()
         {

@@ -29,26 +29,7 @@ CREATE TABLE IF NOT EXISTS `Role` (
   `Name` VARCHAR(25) NOT NULL,
   PRIMARY KEY (`Name`));
 
-
--- -----------------------------------------------------
--- Table `UserRole`
--- -----------------------------------------------------
-DROP TABLE IF EXISTS `UserRole`;
-
-CREATE TABLE IF NOT EXISTS `UserRole` (
-  `Username` VARCHAR(50) NOT NULL,
-  `RoleName` VARCHAR(25) NOT NULL,
-  PRIMARY KEY (`Username`, `RoleName`),
-  FOREIGN KEY (`Username`)
-    REFERENCES `User` (`Username`)
-    ON DELETE NO ACTION
-    ON UPDATE NO ACTION,
-  FOREIGN KEY (`RoleName`)
-    REFERENCES `Role` (`Name`)
-    ON DELETE NO ACTION
-    ON UPDATE NO ACTION);
-
-
+  
 -- -----------------------------------------------------
 -- Table `Status`
 -- -----------------------------------------------------
@@ -78,25 +59,6 @@ CREATE TABLE IF NOT EXISTS `Topic` (
 
 
 -- -----------------------------------------------------
--- Table `UserTopic`
--- -----------------------------------------------------
-DROP TABLE IF EXISTS `UserTopic`;
-
-CREATE TABLE IF NOT EXISTS `UserTopic` (
-  `Username` VARCHAR(20) NOT NULL,
-  `TopicName` VARCHAR(60) NOT NULL,
-  PRIMARY KEY (`Username`, `TopicName`),
-  FOREIGN KEY (`Username`)
-    REFERENCES `User` (`Username`)
-    ON DELETE NO ACTION
-    ON UPDATE NO ACTION,
-  FOREIGN KEY (`TopicName`)
-    REFERENCES `Topic` (`Name`)
-    ON DELETE NO ACTION
-    ON UPDATE NO ACTION);
-
-
--- -----------------------------------------------------
 -- Table `Course`
 -- -----------------------------------------------------
 DROP TABLE IF EXISTS `Course`;
@@ -115,6 +77,7 @@ DROP TABLE IF EXISTS `UserCourse`;
 CREATE TABLE IF NOT EXISTS `UserCourse` (
   `Username` VARCHAR(20) NOT NULL,
   `CourseNumber` VARCHAR(15) NOT NULL,
+  `Role` VARCHAR(25) NOT NULL,
   PRIMARY KEY (`Username`, `CourseNumber`),
   FOREIGN KEY (`Username`)
     REFERENCES `User` (`Username`)
@@ -123,8 +86,11 @@ CREATE TABLE IF NOT EXISTS `UserCourse` (
   FOREIGN KEY (`CourseNumber`)
     REFERENCES `Course` (`Number`)
     ON DELETE NO ACTION
+    ON UPDATE NO ACTION,
+  FOREIGN KEY (`Role`)
+    REFERENCES `Role` (`Name`)
+    ON DELETE NO ACTION
     ON UPDATE NO ACTION);
-
 
 
 -- -----------------------------------------------------
@@ -137,42 +103,67 @@ CREATE TABLE IF NOT EXISTS `UserCourseUserTopic` (
   `UserTopicName` VARCHAR(60) NOT NULL,
   `UserCourseNumber` VARCHAR(15) NOT NULL,
   PRIMARY KEY (`Username`, `UserTopicName`, `UserCourseNumber`),
-  FOREIGN KEY (`Username` , `UserTopicName`)
-    REFERENCES `UserTopic` (`Username` , `TopicName`)
+  FOREIGN KEY (`Username`)
+    REFERENCES `User` (`Username`)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION,
-  FOREIGN KEY (`Username` , `UserCourseNumber`)
-    REFERENCES `UserCourse` (`Username` , `CourseNumber`)
+  FOREIGN KEY (`UserTopicName`)
+    REFERENCES `Topic` (`Name`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION,
+  FOREIGN KEY (`Username`, `UserCourseNumber`)
+    REFERENCES `UserCourse` (`Username`, `CourseNumber`)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION);
+
+
+-- -----------------------------------------------------
+-- Table `Authority`
+-- -----------------------------------------------------
+DROP TABLE IF EXISTS `Authority` ;
+
+CREATE TABLE IF NOT EXISTS `Authority` (
+  `Name` VARCHAR(25) NOT NULL,
+  PRIMARY KEY (`Name`));
+
+-- -----------------------------------------------------
+-- Table `UserAuthority`
+-- -----------------------------------------------------
+DROP TABLE IF EXISTS `UserAuthority` ;
+
+CREATE TABLE IF NOT EXISTS `UserAuthority` (
+  `Username` VARCHAR(20) NOT NULL,
+  `AuthorityName` VARCHAR(25) NOT NULL,
+  PRIMARY KEY (`Username`, `AuthorityName`),
+  FOREIGN KEY (`Username`)
+    REFERENCES `User` (`Username`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION,
+  FOREIGN KEY (`AuthorityName`)
+    REFERENCES `Authority` (`Name`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION);
+
+
+-- -----------------------------------------------------
+-- Data for table `Authority`
+-- -----------------------------------------------------
+BEGIN TRANSACTION;
+INSERT INTO `Authority` (`Name`) VALUES ('ADMIN');
+
+COMMIT;
 
 
 -- -----------------------------------------------------
 -- Data for table `Role`
 -- -----------------------------------------------------
 BEGIN TRANSACTION;
-INSERT INTO `Role` (`Name`) VALUES ('ROLE_ADMIN');
-INSERT INTO `Role` (`Name`) VALUES ('ROLE_PROFESSOR');
-INSERT INTO `Role` (`Name`) VALUES ('ROLE_TA');
-INSERT INTO `Role` (`Name`) VALUES ('ROLE_STUDENT');
+INSERT INTO `Role` (`Name`) VALUES ('PROFESSOR');
+INSERT INTO `Role` (`Name`) VALUES ('TA');
+INSERT INTO `Role` (`Name`) VALUES ('STUDENT');
 
 COMMIT;
 
--- -----------------------------------------------------
--- Data for table `User`
--- -----------------------------------------------------
-BEGIN TRANSACTION;
-INSERT INTO `User` (`Username`, `Password`, `Enabled`, `FirstName`, `LastName`, `Email`) VALUES ('admin', 'd033e22ae348aeb5660fc2140aec35850c4da997', 1, 'Gregor', 'Mendel', 'g.mendel@tas.com');
-
-COMMIT;
-
--- -----------------------------------------------------
--- Data for table `UserRole`
--- -----------------------------------------------------
-BEGIN TRANSACTION;
-INSERT INTO `UserRole` (`Username`, `RoleName`) VALUES ('admin', 'ROLE_ADMIN');
-
-COMMIT;
 
 -- -----------------------------------------------------
 -- Data for table `Status`
@@ -185,9 +176,39 @@ INSERT INTO `Status` (`Name`) VALUES ('REJECTED');
 COMMIT;
 
 -- -----------------------------------------------------
+-- Data for table `User`
+-- -----------------------------------------------------
+BEGIN TRANSACTION;
+INSERT INTO `User` (`Username`, `Password`, `Enabled`, `FirstName`, `LastName`, `Email`) VALUES ('admin', 'd033e22ae348aeb5660fc2140aec35850c4da997', 1, 'Gregor', 'Mendel', 'g.mendel@tas.com');
+INSERT INTO `User` (`Username`, `Password`, `Enabled`, `FirstName`, `LastName`, `Email`) VALUES ('stan', 'd033e22ae348aeb5660fc2140aec35850c4da997', 1, 'Stan', 'Smith', 'axa9070@rit.edu');
+INSERT INTO `User` (`Username`, `Password`, `Enabled`, `FirstName`, `LastName`, `Email`) VALUES ('tom', 'd033e22ae348aeb5660fc2140aec35850c4da997', 1, 'Tom', 'Haverford', 'axa9070@rit.edu');
+
+COMMIT;
+
+-- -----------------------------------------------------
+-- Data for table `UserAuthority`
+-- -----------------------------------------------------
+BEGIN TRANSACTION;
+INSERT INTO `UserAuthority` (`Username`, `AuthorityName`) VALUES ('admin', 'ADMIN');
+
+COMMIT;
+
+
+-- -----------------------------------------------------
 -- Data for table `Course`
 -- -----------------------------------------------------
 BEGIN TRANSACTION;
 INSERT INTO `Course` (`Number`, `Name`) VALUES ('101-01', 'Introduction to Web Technologies');
 
 COMMIT;
+
+
+-- -----------------------------------------------------
+-- Data for table `UserCourse`
+-- -----------------------------------------------------
+BEGIN TRANSACTION;
+INSERT INTO `UserCourse` (`Username`, `CourseNumber`, `Role`) VALUES ('tom', '101-01', 'TA');
+INSERT INTO `UserCourse` (`Username`, `CourseNumber`, `Role`) VALUES ('stan', '101-01', 'STUDENT');
+
+COMMIT;
+

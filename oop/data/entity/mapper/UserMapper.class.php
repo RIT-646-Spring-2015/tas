@@ -1,14 +1,17 @@
 <?php
-require dirname(__FILE__) . '/../User.class.php';
+require dirname( __FILE__ ) . '/../User.class.php';
 
 final class UserMapper
 {
+
     public static function mapRow( $rs )
     {
-        $roles = array ( $rs['RoleName'] );
+        if ( ( $auth = $rs['AuthorityName'] ) != null )
+            $auths = array ( $auth );
+        else $auths = array ();
         
         $user = new User( $rs['Username'], $rs['Password'], $rs['FirstName'], $rs['LastName'], 
-                $rs['Email'], $rs['DateJoined'], $rs['LastOnline'], $rs['Enabled'], $roles );
+                $rs['Email'], $rs['DateJoined'], $rs['LastOnline'], $rs['Enabled'], $auths );
         
         return $user;
     }

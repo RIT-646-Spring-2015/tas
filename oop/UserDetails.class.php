@@ -130,9 +130,9 @@ abstract class UserDetails
         return $this->authorities;
     }
     
-    public function hasRole( $role )
+    public function hasAuthority( $authority )
     {
-        return in_array( $role, $this->authorities );
+        return in_array( $authority, $this->authorities );
         
     }
     

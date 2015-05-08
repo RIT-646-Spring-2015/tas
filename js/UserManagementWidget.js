@@ -104,7 +104,7 @@ var UserManagementWidget = function()
                 }),
                 function(i, user)
                 {
-                    if ($(user).children("#Authorities:contains(ROLE_ADMIN)").length)
+                    if ($(user).children("#Authorities:contains(ADMIN)").length)
                     {
                         alert("You can't delete an admin!");
                     } else
@@ -156,7 +156,7 @@ var UserManagementWidget = function()
         $("<th class='header'>Email</th>")).append(
         $("<th class='header'>Date Joined</th>")).append(
         $("<th class='header'>Last Online</th>")).append(
-        $("<th class='header'>Roles</th>"));
+        $("<th class='header'>Authorities</th>"));
 
         $("#niceTable").append($("<tbody>"));
 
