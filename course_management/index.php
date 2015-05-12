@@ -3,11 +3,7 @@ require_once '../lib/lib_tas.php';
 
 redirectIfLoggedOut();
 
-// This is a secure area!
-if ( !$TAS_DB_MANAGER->isAdmin() )
-{
-    redirectIfLoggedIn();
-}
+$username = getActingUsername( "You cannot access another user's course information!" );
 ?>
 
 <!DOCTYPE HTML>
@@ -23,5 +19,5 @@ echo templateHead( "Course Management", array ( '/css/managementStyle.css' ),
     <?= templateHeader( true, true, true, false, true )?>
     <div id="content"></div>
 </body>
-
+<span id="user"><?= isset($_GET['username'])? $username:''?></span>
 </html>

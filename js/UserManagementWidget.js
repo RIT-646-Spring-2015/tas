@@ -164,9 +164,9 @@ var UserManagementWidget = function()
 
         $('.userRow').on( 'contextmenu', function(e) {
             e.preventDefault();
-            if ( confirm( 'See user\'s cart?' ) )
+            if ( confirm( 'See user\'s courses?' ) )
             {
-                location = '../cart.php?username=' + $(this).attr('user');
+                location = '../course_management?username=' + $(this).attr('user');
             }
         });
 

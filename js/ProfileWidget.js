@@ -21,8 +21,10 @@ var ProfileWidget = function()
         //////////////////////////////////////////
         // Find Pieces and Enliven DOM Fragment //
         //////////////////////////////////////////
-        container.append($("<p><a href=\"./userDetails.php\">Update Your Info</a>"));
-        container.append($("<p><a href=\"./\">View Your Courses</a>"));
+        container
+        .append($("<p><a href=\"./userDetails.php\">Update Your Info</a>"));
+        container.append($("<p><a href=\"../course_management?username="
+        + $("#user").html() + "\">View Your Courses</a>"));
         container.append($("<p><a href=\"./\">View Your Topics</a>"));
 
         /////////////////////////////

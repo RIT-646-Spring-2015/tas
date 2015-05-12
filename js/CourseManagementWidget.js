@@ -14,6 +14,8 @@ var CourseManagementWidget = function()
 
         var container = parentElement;
 
+        var user = $("#user").html() == "" ? undefined : $("#user").html();
+
         var courseTable = $("<table id='niceTable'><thead><tr id='niceTableHeader'>");
 
         var deleteCoursesButton = $("<input id='deletedCourses' type='button' value='Delete Selected Courses'>");
@@ -55,10 +57,16 @@ var CourseManagementWidget = function()
             $.ajax({
                 async : false,
                 url : "retrieveCourses.php",
-                type : 'POST'
+                type : 'POST',
+                data : {
+                    username : user
+                }
             }).done(
             function(courses)
             {
+                if (courses.length <= 0)
+                    return;
+
                 $.each(courses, function(courseNumber, course)
                 {
                     course.courseNumber = courseNumber;
@@ -179,8 +187,15 @@ var CourseManagementWidget = function()
 
         addCourseButton.click(addCourse)
 
-        $("#nice_tableBlock").append(deleteCoursesButton).append(
-        updateCourseButton).append(addCourseButton);
+        if (!user)
+        {
+            $("#nice_tableBlock").append(deleteCoursesButton).append(
+            updateCourseButton).append(addCourseButton);
+        } else
+        {
+            $("#nice_tableBlock").append(
+            updateCourseButton.val("View Selected Course"));
+        }
 
         /////////////////////////////
         // Public Instance Methods //
