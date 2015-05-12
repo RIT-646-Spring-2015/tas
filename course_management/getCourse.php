@@ -19,7 +19,10 @@ foreach ( $TAS_DB_MANAGER->getAvailableRoles() as $role )
 foreach ( $course->getEnrolled() as $username => $role )
 {
     $user = $TAS_DB_MANAGER->loadUserByUsername( $username );
-    $result['enrolled'][$role][] = htmlentities( $user->toString() );
+    $result['enrolled'][$role][$username]['fullName'] = sprintf( '(%s %s)', $user->getFirstName(), 
+            $user->getLastName() );
+    $result['enrolled'][$role][$username]['email'] = htmlentities( 
+            sprintf( '<%s>', $user->getEmail() ) );
 }
 
 header( 'Content-Type: application/json' );

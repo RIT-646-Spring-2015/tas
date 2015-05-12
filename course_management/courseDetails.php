@@ -77,7 +77,13 @@ echo templateHead( "Course: $courseNumber Details",
 						</tr>
 						<tr id="enrolledRow">
 							<td><label for="enrolled">Roster</label></td>
-							<td id="enrolled"></td>
+							<td id="enrolled">
+								<div id="studentsEnrolled"></div>
+								<div id="modifyEnrolled">
+									<input id="addUsersButton" type="button" value="Add Users"> <input
+										id="removeUsersButton" type="button" value="Remove Users">
+								</div>
+							</td>
 						</tr>
 						<tr id="topicsRow">
 							<td><label for="topics">Proposed Topics</label></td>

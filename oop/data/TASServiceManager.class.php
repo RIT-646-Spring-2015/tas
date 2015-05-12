@@ -72,6 +72,10 @@ class TASServiceManager
 
     /**
      */
+    const NEW_USER_COURSE_SQL = 'INSERT INTO UserCourse (Username, CourseNumber, Role) VALUES ( ?, ?, ? );';
+
+    /**
+     */
     const DELETE_USER_SQL = 'DELETE FROM User WHERE Username = ?;';
 
     /**
@@ -332,6 +336,24 @@ class TASServiceManager
         }
     }
 
+    public function addUserToCourse( $username, $courseNumber, $role )
+    {
+        try
+        {
+            $this->failIfNotAdmin();
+            
+            $stmt = $this->getDB()->prepare( self::NEW_USER_COURSE_SQL );
+            $stmt->bindParam( 1, $username, SQLITE3_TEXT );
+            $stmt->bindParam( 2, $courseNumber, SQLITE3_TEXT );
+            $stmt->bindParam( 3, $role, SQLITE3_TEXT );
+            
+            $stmt->execute();
+        } catch ( Exception $e )
+        {
+            echo $e->getMessage();
+        }
+    }
+
     public function removeUserFromCourse( $username, $courseNumber )
     {
         try
@@ -347,8 +369,6 @@ class TASServiceManager
         {
             echo $e->getMessage();
         }
-        
-        $stmt->execute();
     }
 
     public function removeTopicProposal( $username, $topicName, $courseNumber )

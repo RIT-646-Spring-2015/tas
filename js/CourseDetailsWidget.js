@@ -16,11 +16,17 @@ var CourseDetailsWidget = function()
 
         var courseDetails;
 
+        var roles = [];
+
+        var userRemoval = [];
+
         //////////////////////////////
         // Private Instance Methods //
         //////////////////////////////
         function getDetails()
         {
+            roles = [];
+            userRemoval = [];
             var courseNumber = $("#courseNumber").html();
 
             courseDetails = $.ajax({
@@ -39,23 +45,39 @@ var CourseDetailsWidget = function()
                 {
                     if (this == "enrolled")
                     {
-                        $.each(course.enrolled, function(role, usernames)
+                        $("#studentsEnrolled").empty();
+                        $.each(course.enrolled, function(role, users)
                         {
-                            $("#enrolled").append(
+                            roles.push(role);
+                            $("#studentsEnrolled").append(
                             "<h4 class='roleHeader'>" + role + "</h4>");
 
-                            $.each(usernames, function(i,username)
+                            $.each(users, function(username, user)
                             {
-                                $("#enrolled").append(
-                                "<p class='roster'>" + username + "</p>");
+                                $("#studentsEnrolled").append(
+                                "<div><input class='userRemove' type='checkbox' user='"
+                                + username + "'><p class='roster' user='"
+                                + username + "'>" + username + " "
+                                + user.fullName + "<br>" + user.email
+                                + "</p></div>");
                             });
-                            
+
                         });
                     } else
                     {
                         $("#" + this).val(course[this]);
                         console.log("UPDATED " + this);
                     }
+                    $('p.roster').each(
+                    function()
+                    {
+                        $(this).click(
+                        function()
+                        {
+                            $("input[user='" + $(this).attr("user") + "'")
+                            .click();
+                        });
+                    });
                 });
             }).responseJSON;
         }
@@ -66,29 +88,18 @@ var CourseDetailsWidget = function()
 
             var detail = courseDetails[field];
 
-            if ($(this).is(".authBox"))
+            if ($(this).is(".userRemove"))
             {
-                if ($("#authoritiesRow").is(".permanent"))
-                    return;
-
-                var unChanged = true;
-                $(".authBox").each(function()
+                if ($(this).prop("checked"))
                 {
-                    p = _.contains(detail, $(this).attr("auth"));
-                    q = this.checked;
-
-                    return unChanged = ((!p || q) && (!q || p));
-                });
-
-                $("tr:has(#" + field + ")").toggleClass("selected", !unChanged);
-            } else if ($(this).is("#enabled"))
-            {
-                if ($("#enabledRow").is(".permanent"))
-                    return;
-
-                detail = detail === 'true';
-                $("tr:has(#" + field + ")").toggleClass("selected",
-                detail != $(this).is(":checked"));
+                    userRemoval.push($(this).attr("user"));
+                } else
+                {
+                    userRemoval = $.grep(userRemoval, function(username)
+                    {
+                        return $(this).attr("user") == username;
+                    });
+                }
             } else
             {
                 $("tr:has(#" + field + ")").toggleClass("selected",
@@ -100,14 +111,108 @@ var CourseDetailsWidget = function()
 
         function updateClickabilityOfButtons()
         {
-            var clickable = $(".selected").not("#passwordRow").length > 0;
+            var clickable = $(".selected").length > 0;
 
             $("#updateFieldsButton").prop("disabled", !clickable);
+            $("#removeUsersButton").prop("disabled", userRemoval.length <= 0);
+        }
+
+        function addUsers()
+        {
+            var courseNumber = $("#courseNumber").html();
+            $("div#userList").remove();
+
+            // Open a widget showing all users not already enrolled in this course
+            container.append($("<div id='userList'>"));
+
+            $.ajax({
+                url : "../user_management/retrieveUsers.php",
+                type : "POST",
+                data : {
+                    notInCourse : courseNumber
+                },
+                async : false
+            }).done(
+            function(users)
+            {
+                $.each(users, function(username, user)
+                {
+                    var rolesRadio = $("<p>");
+
+                    $.each(roles, function(i, role)
+                    {
+                        rolesRadio
+                        .append("<p>\
+                        		<input id='"
+                        + username + "_" + role
+                        + "' type=radio name='role' user=" + username
+                        + " role='" + role + "'><label for='" + username + "_"
+                        + role + "'>" + role
+                        + "</label> \
+                        		</p>");
+                    });
+
+                    $("div#userList").append(
+                    $(
+                    "<div class='userAddBlock'><p class='userAdd' user='"
+                    + username + "'>" + username + " (" + user.firstName + " "
+                    + user.lastName + ")<br>&nbsp;&lt;" + user.email
+                    + "&gt;</p></div>").append(rolesRadio));
+                });
+
+                $("p.userAdd").click(
+                function()
+                {
+                    var username = $(this).attr("user");
+                    var role = $("input[user=" + username + "]:checked").attr(
+                    "role");
+
+                    if (role == undefined)
+                    {
+                        alert("You must select a role for " + username
+                        + " before adding the user to the course.");
+                        return;
+                    }
+
+                    $.ajax({
+                        url : "./addUserToCourse.php",
+                        type : "POST",
+                        data : {
+                            username : username,
+                            courseNumber : courseNumber,
+                            role : role
+                        }
+                    }).done(function()
+                    {
+                        getDetails();
+                        $("#addUsersButton").click();
+                    });
+                });
+            });
+
+        }
+
+        function removeUsers()
+        {
+            $.each(userRemoval, function(i, username)
+            {
+                $.ajax({
+                    url : "./removeUserFromCourse.php",
+                    type : "POST",
+                    data : {
+                        username : username,
+                        courseNumber : $("#courseNumber").html()
+                    }
+                }).done(getDetails);
+            });
         }
         //////////////////////////////////////////
         // Find Pieces and Enliven DOM Fragment //
         //////////////////////////////////////////
         getDetails(courseDetails);
+
+        $("input#addUsersButton").click(addUsers);
+        $("input#removeUsersButton").click(removeUsers);
 
         $("tr input[type!=button]").on("change input", updateCourseDetails);
 
