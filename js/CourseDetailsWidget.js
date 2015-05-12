@@ -29,18 +29,21 @@ var CourseDetailsWidget = function()
             userRemoval = [];
             var courseNumber = $("#courseNumber").html();
 
-            courseDetails = $.ajax({
+            courseDetails = $
+            .ajax({
                 url : "./getCourse.php",
                 type : "POST",
                 data : {
                     courseNumber : courseNumber
                 },
                 async : false
-            }).done(
+            })
+            .done(
             function(course)
             {
                 // Update fields
-                $(_.keys(course)).each(
+                $(_.keys(course))
+                .each(
                 function()
                 {
                     if (this == "enrolled")
@@ -63,6 +66,19 @@ var CourseDetailsWidget = function()
                             });
 
                         });
+                    } else if (this == "topics")
+                    {
+                        $("#topics table tr:not(:has(th))").empty();
+                        var topicRowTemplate = _
+                        .template("<tr><td><%= username %></td>\
+                        		       <td><%= topic %></td>\
+                        		       <td class='status_<%= status %>'><%= status %></td></tr>");
+
+                        $.each(course.topics, function(username, topic)
+                        {
+                            $("#topics table").append(topicRowTemplate(topic));
+                        });
+
                     } else
                     {
                         $("#" + this).val(course[this]);
@@ -72,13 +88,17 @@ var CourseDetailsWidget = function()
                     function()
                     {
                         $(this).click(
-                        function()
+                        function(e)
                         {
+                            e.stopImmediatePropagation();
                             $("input[user='" + $(this).attr("user") + "'")
                             .click();
                         });
                     });
                 });
+                $("tr input[type!=button]").on("change input",
+                updateCourseDetails);
+                updateClickabilityOfButtons();
             }).responseJSON;
         }
 
@@ -119,8 +139,14 @@ var CourseDetailsWidget = function()
 
         function addUsers()
         {
-            var courseNumber = $("#courseNumber").html();
+            if ( $("div#userList").length > 0 )
+            {
+                $("div#userList").remove();
+                return;
+            }
+            
             $("div#userList").remove();
+            var courseNumber = $("#courseNumber").html();
 
             // Open a widget showing all users not already enrolled in this course
             container.append($("<div id='userList'>"));
@@ -185,11 +211,10 @@ var CourseDetailsWidget = function()
                     }).done(function()
                     {
                         getDetails();
-                        $("#addUsersButton").click();
+                        $("div#userList").remove();
                     });
                 });
             });
-
         }
 
         function removeUsers()
@@ -213,8 +238,6 @@ var CourseDetailsWidget = function()
 
         $("input#addUsersButton").click(addUsers);
         $("input#removeUsersButton").click(removeUsers);
-
-        $("tr input[type!=button]").on("change input", updateCourseDetails);
 
         // If it was meant to be permanent, disable it!
         $("tr.permanent input[type!=button][type!=submit]").prop("readonly",

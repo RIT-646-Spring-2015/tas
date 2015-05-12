@@ -87,7 +87,18 @@ echo templateHead( "Course: $courseNumber Details",
 						</tr>
 						<tr id="topicsRow">
 							<td><label for="topics">Proposed Topics</label></td>
-							<td id="topics"></td>
+							<td id="topics">
+								<table>
+									<th>User</th>
+									<th>Topic Name</th>
+									<th>Status</th>
+								</table>
+								<p>
+									<input type="button" id="topicManagement"
+										value="Manage Topics for this Course"
+										onclick="location='../topic_management?courseNumber=<?=$courseNumber?>';">
+								</p>
+							</td>
 						</tr>
                         <?php
                         if ( isset( $message ) )
@@ -100,8 +111,12 @@ echo templateHead( "Course: $courseNumber Details",
                         ?>
                         <tr id="buttonsRow" class="permanent">
 							<td></td>
-							<td><input type="submit" id="updateFieldsButton" name="submitted"
-								value="Update With New Info"></td>
+							<td>
+								<p>
+									<input type="submit" id="updateFieldsButton" name="submitted"
+										value="Update With New Info">
+								</p>
+							</td>
 						</tr>
 					</tbody>
 				</table>

@@ -1,11 +1,20 @@
 @CHARSET "UTF-8";
 
+#buttonsRow p {
+	text-align: center;
+}
+
+#topics p {
+	text-align: left;
+}
+
 .roleHeader {
 	margin: 0;
 	padding 15px;
 	background: #D00;
 	border: 1px black solid;
 	font-weight: normal;
+	text-align: center;
 }
 
 p.roster {
@@ -28,11 +37,11 @@ td#enrolled > div {
 }
 
 div#studentsEnrolled {
-	width: 55%;
+	width: 70%;
 }
 
 div#modifyEnrolled {
-	width: 40%;
+	width: 28%;
 }
 
 div#modifyEnrolled input {
@@ -41,7 +50,7 @@ div#modifyEnrolled input {
 }
 
 div#studentsEnrolled > div{
-	display: inline-flex;
+	display: flex;
 }
 
 div#userList {
@@ -58,3 +67,27 @@ p.userAdd {
 	cursor: copy;
 }
 
+td#topics table {
+	border-collapse: collapse;
+}
+
+td#topics table th {
+	text-align: center;
+	background: lightblue;
+}
+
+td#topics table th, td#topics table td {
+	border: 1px black solid;
+}
+
+td.status_SUBMITTED {
+	background: orange;
+}
+
+td.status_APPROVED {
+	background: lightgreen;
+}
+
+td.status_REJECTED {
+	background: pink;
+}

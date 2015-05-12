@@ -25,6 +25,16 @@ foreach ( $course->getEnrolled() as $username => $role )
             sprintf( '<%s>', $user->getEmail() ) );
 }
 
+foreach ( $course->getTopics() as $topicName => $username )
+{
+    $topic = $TAS_DB_MANAGER->loadTopicByName( $topicName );
+    $user = $TAS_DB_MANAGER->loadUserByUsername( $username );
+    $result['topics'][$username]['username'] = sprintf( '%s (%s %s)', $username, $user->getFirstName(), 
+            $user->getLastName() );
+    $result['topics'][$username]['topic'] = $topicName;
+    $result['topics'][$username]['status'] = $topic->getStatus();
+}
+
 header( 'Content-Type: application/json' );
 echo json_encode( $result );
 ?>
