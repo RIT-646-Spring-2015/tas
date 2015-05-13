@@ -121,8 +121,9 @@ abstract class TopicDetails
 
     public function toString()
     {
-        return sprintf( "%s: [%s] {Blacklisted: %b}%n Link: (%s)%n [%s]", $this->name, 
-                $this->submissionDate, $this->blacklisted, $this->link, $this->status );
+        return sprintf( '%s:%s [%s] {Blacklisted: %b} Link: (%s) [%s]', $this->name, 
+                $this->courseNumber, $this->submissionDate, $this->blacklisted, $this->link, 
+                $this->status );
     }
 }
 

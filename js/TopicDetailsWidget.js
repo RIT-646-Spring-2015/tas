@@ -1,12 +1,12 @@
 // Wrap code with module pattern
-var ProductDetailsWidget = function()
+var TopicDetailsWidget = function()
 {
     var global = this;
 
     /////////////////////////////////
     // Widget Constructor Function //
     /////////////////////////////////
-    global.makeProductDetailsWidget = function(parentElement)
+    global.makeTopicDetailsWidget = function(parentElement)
     {
         ////////////////////////
         /////    Fields    /////
@@ -14,73 +14,50 @@ var ProductDetailsWidget = function()
 
         var container = parentElement;
 
-        var productDetails;
+        var topicDetails;
 
         //////////////////////////////
         // Private Instance Methods //
         //////////////////////////////
         function getDetails()
         {
-            var productId = $("#productId").html();
+            var topicName = $("#topicName").html();
 
-            productDetails = $.ajax({
-                url : "./getProduct.php",
+            topicDetails = $.ajax({
+                url : "./getTopic.php",
                 type : "POST",
                 data : {
-                    productId : productId
+                    topicName : topicName
                 },
                 async : false
-            }).done(function(product)
+            }).done(function(topic)
             {
                 // Update fields
-                $(_.keys(product)).each(function()
+                $(_.keys(topic)).each(function()
                 {
                     if ($("#" + this).attr("type") == "checkbox")
                     {
-                        $("#" + this).prop("checked", product[this] === 'true');
-                    }
-                    else if( this == "price" || this == "sale" )
+                        $("#" + this).prop("checked", topic[this] === 'true');
+                    } else
                     {
-                        $("#" + this).val(product[this]/100.0);
-                        console.log("UPDATED " + this);
-                        formWidget.update();
-                        product[this] = $("#" + this).val();
-                    }
-                    else if ($("#" + this).attr("type") == "file")
-                    {
-                        $("#" + this).parent().prepend("<a href='" + product.imageSitePath +
-                                "'><p><img  style='float: left;' height='95' width='120' src='"  +
-                                    product.imageSitePath + "'></img></p></a>");
-                    }
-                    else if (this == "description" )
-                    {
-                        $("#" + this).html(product[this]);
-                    }
-                    else
-                    {
-                        $("#" + this).val(product[this]);
+                        $("#" + this).val(topic[this]);
                         console.log("UPDATED " + this);
                     }
                 });
             }).responseJSON;
         }
 
-        function updateProductDetails()
+        function updateTopicDetails()
         {
             var field = $(this).attr("id");
 
-            var detail = productDetails[field];
+            var detail = topicDetails[field];
 
-            if (field == "onSale")
+            if ($(this).attr("type") == "checkbox")
             {
-                if ($("#onSaleRow").is(".permanent"))
-                    return;
-
-                detail = detail === 'true';
                 $("tr:has(#" + field + ")").toggleClass("selected",
-                detail != $(this).is(":checked"));
-            } 
-            else
+                (detail === 'true') != $(this).prop('checked'));
+            } else
             {
                 $("tr:has(#" + field + ")").toggleClass("selected",
                 detail != $(this).val());
@@ -98,11 +75,12 @@ var ProductDetailsWidget = function()
         //////////////////////////////////////////
         // Find Pieces and Enliven DOM Fragment //
         //////////////////////////////////////////
-        getDetails(productDetails);
+        getDetails(topicDetails);
 
-        $("tr input[type!=button]").on("change input", updateProductDetails);
-        
-        $("tr textarea").on("change input", updateProductDetails);
+        $("tr input[type!=button], tr select").on("change input",
+        updateTopicDetails);
+
+        $("tr textarea").on("change input", updateTopicDetails);
 
         // If it was meant to be permanent, disable it!
         $("tr.permanent input[type!=button][type!=submit]").prop("readonly",
@@ -137,5 +115,5 @@ var ProductDetailsWidget = function()
 
 $(document).ready(function()
 {
-    productDetailsWidget = makeProductDetailsWidget($("#content"));
+    topicDetailsWidget = makeTopicDetailsWidget($("#content"));
 });

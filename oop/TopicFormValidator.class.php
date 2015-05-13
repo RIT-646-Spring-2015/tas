@@ -13,7 +13,8 @@ class TopicFormValidator
     {
         $errors = array ();
         self::validates( $errors, $topic->getName(), 'Topic name required.' );
-        self::validates( $errors, $topic->getLink(), 'Link required.' );
+        self::validates( $errors, $topic->getSubmittingUsername(), 'Submitting User required.' );
+        self::validates( $errors, $topic->getCourseNumber(), 'Course number required.' );
         
         return $errors;
     }
@@ -31,7 +32,7 @@ class TopicFormValidator
         }
         
         // Validate Topic Link
-        if ( !preg_match( '/.{1,500}$/', $topic->getLink() ) )
+        if ( !preg_match( '/.{0,500}$/', $topic->getLink() ) )
         {
             $errors[] .= 'Link must be less than 500 characters';
         }

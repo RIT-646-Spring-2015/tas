@@ -91,3 +91,9 @@ td.status_APPROVED {
 td.status_REJECTED {
 	background: pink;
 }
+
+.blacklisted,
+.blacklisted:hover td {
+	background: gray !important;
+}
+

@@ -70,13 +70,22 @@ var CourseDetailsWidget = function()
                     {
                         $("#topics table tr:not(:has(th))").empty();
                         var topicRowTemplate = _
-                        .template("<tr><td><%= username %></td>\
+                        .template("<tr<%= blacklisted? ' class=\"blacklisted\"':'' %> topicName='<%= topic %>'>\
+                        		       <td><%= username %></td>\
                         		       <td><%= topic %></td>\
                         		       <td class='status_<%= status %>'><%= status %></td></tr>");
 
                         $.each(course.topics, function(username, topic)
                         {
-                            $("#topics table").append(topicRowTemplate(topic));
+                            $("#topics table").append(
+                            $(topicRowTemplate(topic)).click(function()
+                            {
+                                var topic = $(this).attr('topicName');
+                                if ( confirm('Would you like to view topic: ' + topic + '?') )
+                                {
+                                    location = '../topic_management/topicDetails.php?topicName=' + topic;
+                                }
+                            }));
                         });
 
                     } else

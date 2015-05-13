@@ -112,7 +112,7 @@ class TASServiceManager
 
     /**
      */
-    const UPDATE_TOPIC_SQL = 'UPDATE Topic SET SubmittingUsername = ?, CourseNumber = ?, Link = ?, SubmissionDate = ?, Blacklisted = ?, Status = ?, WHERE Name = ?;';
+    const UPDATE_TOPIC_SQL = 'UPDATE Topic SET Link = ?, Status = ?, Blacklisted = ? WHERE Name = ?;';
 
     /**
      */
@@ -279,13 +279,10 @@ class TASServiceManager
         $stmt = $this->getDB()->prepare( self::UPDATE_TOPIC_SQL );
         PreparedStatementSetter::setValuesAndExecute( 
                 function ( SQLite3Stmt &$ps ) use($topic ) {
-                    $ps->bindValue( 1, $topic->getSubmittingUsername() );
-                    $ps->bindValue( 2, $topic->getCourseNumber() );
-                    $ps->bindValue( 3, $topic->getLink() );
-                    $ps->bindValue( 4, $topic->getSubmissionDate() );
-                    $ps->bindValue( 5, $topic->getBlacklisted() );
-                    $ps->bindValue( 6, $topic->getStatus() );
-                    $ps->bindValue( 7, $topic->getName() );
+                    $ps->bindValue( 1, $topic->getLink() );
+                    $ps->bindValue( 2, $topic->getStatus() );
+                    $ps->bindValue( 3, $topic->isBlacklisted() );
+                    $ps->bindValue( 4, $topic->getName() );
                 }, $stmt );
     }
 
@@ -383,8 +380,10 @@ class TASServiceManager
         try
         {
             $error = false;
-            // if the user being added is not the current user, and the current user is a
-            // professor: OK
+            /*
+             * if the user being added is not the current user, and the current user is a
+             * professor: OK
+             */
             if ( $username != $user->getUsername() &&
                      array_key_exists( $user->getUsername(), $enrolled ) &&
                      $enrolled[$user->getUsername()] == self::ROLE_PROFESSOR )
@@ -395,8 +394,10 @@ class TASServiceManager
                 $error = true;
             }
             
-            // if the user being added is not the current user, and the current user is a TA,
-            // and the user is being added a student: OK
+            /*
+             * if the user being added is not the current user, and the current user is a TA,
+             * and the user is being added a student: OK
+             */
             if ( $username != $user->getUsername() &&
                      array_key_exists( $user->getUsername(), $enrolled ) &&
                      $enrolled[$user->getUsername()] == self::ROLE_TA && $role == self::ROLE_STUDENT )
@@ -407,8 +408,10 @@ class TASServiceManager
                 $error = true;
             }
             
-            // if the user being added is the current user, and the user is being added as a
-            // student: OK
+            /*
+             * if the user being added is the current user, and the user is being added as a
+             * student: OK
+             */
             if ( $username == $user->getUsername() && $role == self::ROLE_STUDENT )
             {
                 goto goodToGo;

@@ -31,13 +31,13 @@ var TopicManagementWidget = function()
             'Submission Date', 'Status', 'Blacklisted' ];
 
         var topicRowTemplate = _
-        .template("<tr class='topicRow' topic='<%= name %>'> \
+        .template("<tr class='topicRow<%= blacklisted? ' blacklisted':'' %>' topic='<%= name %>'> \
                <td> \
                  <input class='selectTopic' topic='<%= name %>' type='checkbox'><br> \
                  <span><%= name %></span> \
                </td> \
                <td> \
-                 <span><%= username %></span> \
+                 <span><%= user.username %></span><br><span class='userFullName'><%= user.fullName %></span> \
                </td> \
                <td> \
                  <span><%= courseNumber %></span> \
@@ -142,8 +142,7 @@ var TopicManagementWidget = function()
         function updateTopic()
         {
             var topicName = $(".selectTopic:checked").attr("topic");
-            location = "topic_management/topicDetails.php?topicName="
-            + topicName;
+            location = "topicDetails.php?topicName=" + topicName;
         }
 
         function updateClickabilityOfButtons()
@@ -180,7 +179,7 @@ var TopicManagementWidget = function()
         retrieveTopics(true);
 
         //////////////////////////
-        // PRODUCT MODIFICATION //
+        // TOPIC MODIFICATION //
         //////////////////////////
         deleteTopicsButton.click(deleteTopics);
 
@@ -194,7 +193,7 @@ var TopicManagementWidget = function()
 
         $("#nice_tableBlock").append(deleteTopicsButton).append(
         updateTopicButton).append(addTopicButton);
-
+        
         /////////////////////////////
         // Public Instance Methods //
         /////////////////////////////

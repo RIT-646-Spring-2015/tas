@@ -5,7 +5,7 @@ redirectIfLoggedOut();
 
 $courseNumber = $_GET['courseNumber'];
 
-// See if product exists
+// See if course exists
 try
 {
     $TAS_DB_MANAGER->loadCourseByNumber( $courseNumber );
@@ -54,9 +54,9 @@ if ( $_SERVER['REQUEST_METHOD'] == 'POST' )
 
 <?php
 echo templateHead( "Course: $courseNumber Details", 
-        array ( '/css/formStyle.css', '/css/detailsStyle.css', '/css/courseDetailsStyle.css' ), 
-        array ( '/js/lib/jquery.tablesorter.js', '/js/lib/underscore-min.js', '/js/FormWidget.js', 
-                        '/js/CourseDetailsWidget.js' ) );
+        array ( 'css/formStyle.css', 'css/detailsStyle.css', 'css/courseDetailsStyle.css' ), 
+        array ( 'js/lib/jquery.tablesorter.js', 'js/lib/underscore-min.js', 'js/FormWidget.js', 
+                        'js/CourseDetailsWidget.js' ) );
 ?>
 
 <body>
@@ -95,7 +95,7 @@ echo templateHead( "Course: $courseNumber Details",
 								</table>
 								<p>
 									<input type="button" id="topicManagement"
-										value="Manage Topics for this Course"
+										value="View Topics for this Course"
 										onclick="location='../topic_management?courseNumber=<?=$courseNumber?>';">
 								</p>
 							</td>

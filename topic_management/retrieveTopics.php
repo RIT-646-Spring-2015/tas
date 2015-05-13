@@ -18,7 +18,9 @@ foreach ( $TAS_DB_MANAGER->getTopics() as $topicName => $topic )
         continue;
     
     $result[$topicName]['name'] = $topic->getName();
-    $result[$topicName]['username'] = $topic->getSubmittingUsername();
+    $user = $TAS_DB_MANAGER->loadUserByUsername($topic->getSubmittingUsername());
+    $result[$topicName]['user']['username'] = $user->getUsername();
+    $result[$topicName]['user']['fullName'] = sprintf( '(%s %s)', $user->getFirstName(), $user->getLastName() );
     $result[$topicName]['courseNumber'] = $topic->getCourseNumber();
     $result[$topicName]['link'] = $topic->getLink();
     $result[$topicName]['submissionDate'] = $topic->getSubmissionDate();

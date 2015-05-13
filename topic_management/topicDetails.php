@@ -8,7 +8,7 @@ $topicName = $_GET['topicName'];
 // See if topic exists
 try
 {
-    $TAS_DB_MANAGER->loadTopicByName( $topicName );
+    $thisTopic = $TAS_DB_MANAGER->loadTopicByName( $topicName );
 } catch ( TopicNotFoundException $e )
 {
     echo $e->getMessage();
@@ -18,42 +18,29 @@ try
 if ( $_SERVER['REQUEST_METHOD'] == 'POST' )
 {
     $errors = array ();
-
-    // Clean Data
-    $_POST['product_name'] = clean_input( $_POST['product_name'] );
-    $_POST['price'] = intval( clean_input( $_POST['price'], true ) );
-    $_POST['quantity'] = intval( clean_input( $_POST['quantity'] ) );
-    $_POST['onSale'] = isset( $_POST['onSale'] ) ? true : false;
-    $_POST['sale'] = intval( clean_input( $_POST['sale'], true ) );
-    $_POST['description'] = clean_input( $_POST['description'] );
-
-    // Product Image
-    $image_file = !empty( $_FILES['imagePath']['name'] ) ? PRODUCT_IMAGE_DIR .
-             basename( $_FILES['imagePath']['name'] ) : $PRODUCT_DB_MANAGER->loadProductByProductId( 
-                    $topicName )->getImagePath();
-
-    $product = new ProductForm( $topicName, $_POST['product_name'], $_POST['description'], 
-            $_POST['price'], $_POST['quantity'], $_POST['onSale'], $_POST['sale'], $image_file );
-
-    $errors = array ();
-    $errors = array_merge( ProductFormValidator::validateRequiredFields( $product ),
-        ProductFormValidator::validate( $product, false ) );
     
-    if ( !empty( $_FILES['imagePath']["tmp_name"] ) &&
-             getimagesize( $_FILES['imagePath']["tmp_name"] ) === false )
-    {
-        $errors[] .= 'File is not an image';
-    }
-
+    // Clean Data
+    $_POST['link'] = clean_input( $_POST['link'] );
+    
+    $enrolled = array ();
+    
+    $topic = new TopicForm( $topicName, $_POST['submittingUsername'], $thisTopic->getCourseNumber(), 
+            $_POST['link'], $_POST['submissionDate'], $_POST['blacklisted'] == 'on' ? true : false, 
+            $_POST['status'] );
+    
+    $errors = array ();
+    $errors = array_merge( TopicFormValidator::validateRequiredFields( $topic ), 
+            TopicFormValidator::validate( $topic ) );
+    
     if ( count( $errors ) == 0 )
     {
         // SUBMIT A CHANGE
-        $PRODUCT_DB_MANAGER->updateProduct( $product, $_FILES['imagePath']['tmp_name'] );
+        $TAS_DB_MANAGER->updateTopic( $topic );
         
-        header( 'Location: ./productDetails.php?' . $_SERVER['QUERY_STRING'] );
+        header( 'Location: ' . $_POST['referer'] );
         die();
     }
-
+    
     foreach ( $errors as $error )
     {
         $message .= "<p>$error</p>";
@@ -66,48 +53,67 @@ if ( $_SERVER['REQUEST_METHOD'] == 'POST' )
 <html lang="EN">
 
 <?php
-echo templateHead( "Product $topicName Details", 
-        array ( '../css/formStyle.css', '../css/detailsStyle.css' ), 
-        array ( '../js/lib/jquery.tablesorter.js', '../js/lib/underscore-min.js', 
-                        '../js/lib/jquery.formatCurrency-1.4.0.min.js', '../js/FormWidget.js', 
-                        '../js/ProductDetailsWidget.js' ) );
+echo templateHead( "Topic: $topicName Details", 
+        array ( 'css/formStyle.css', 'css/detailsStyle.css', 'css/topicDetailsStyle.css' ), 
+        array ( 'js/lib/jquery.tablesorter.js', 'js/lib/underscore-min.js', 'js/FormWidget.js', 
+                        'js/TopicDetailsWidget.js' ) );
 ?>
 
 <body>
-    <?= templateHeader(true, true, true)?>
+    <?= templateHeader(true, true, true, true, true)?>
     <div id="content">
-        <form method="POST" enctype="multipart/form-data">
-            <div id="nice_tableBlock">
-                <table id="detailsTable">
-                    <tbody>
-                        <tr id="product_nameRow">
-                            <td><label for="product_name">Product Name</label></td>
-                            <td><input type="text" id="product_name" name="product_name" /></td>
-                        </tr>
-                        <tr id="priceRow">
-                            <td><label for="price">Retail Price</label></td>
-                            <td><input type="text" id="price" class='currency' name="price" /></td>
-                        </tr>
-                        <tr id="quantityRow">
-                            <td><label for="quantity">Quantity</label></td>
-                            <td><input type="number" id="quantity" name="quantity" /></td>
-                        </tr>
-                        <tr id="onSaleRow">
-                            <td><label for="onSale">On Sale</label></td>
-                            <td><input type="checkbox" id="onSale" name="onSale" /></td>
-                        </tr>
-                        <tr id="saleRow">
-                            <td><label for="sale">Sale Price</label></td>
-                            <td><input type="text" id="sale" class='currency' name="sale" /></td>
-                        </tr>
-                        <tr id="descriptionRow">
-                            <td><label for="description">Description</label></td>
-                            <td><textarea type="text" id="description" name="description"></textarea></td>
-                        </tr>
-                        <tr id="imagePathRow">
-                            <td><label for="imagePath">Product Image</label></td>
-                            <td><input type="file" accept='image/*' id="imagePath" name="imagePath" /></td>
-                        </tr>
+		<form method="POST" enctype="multipart/form-data">
+			<input type="text" style="display: none;" name="referer"
+				value="<?=isset( $_SERVER['HTTP_REFERER'] ) ? $_SERVER['HTTP_REFERER'] : './'?>">
+			<div id="nice_tableBlock">
+				<table id="detailsTable">
+					<tbody>
+						<tr id="nameRow" class="permanent">
+							<td><label for="name">Topic Name</label></td>
+							<td><input type="text" id="name" name="name" maxlength="60" /></td>
+						</tr>
+						<tr id="submittingUsernameRow" class="permanent">
+							<td><label for="submittingUsername">Submitting User</label></td>
+							<td><p>
+									<input type="text" id="submittingUsername"
+										name="submittingUsername" maxlength="20" />
+								</p>
+								<p>
+									<input type="text" id="userFullName" name="userFullName"
+										maxlength="20" />
+								</p></td>
+						</tr>
+						<tr id="courseNumberRow" class="permanent">
+							<td><label for="courseNumber">Course Number</label></td>
+							<td><input type="text" id="courseNumber" name="courseNumber"
+								maxlength="15" /></td>
+						</tr>
+						<tr id="linkRow">
+							<td><label for="link">Link</label></td>
+							<td><input type="url" id="link" name="link" maxlength="500" /></td>
+						</tr>
+						<tr id="submissionDateRow" class="permanent">
+							<td><label for="submissionDate">Date Submitted</label></td>
+							<td><input type="text" id="submissionDate" name="submissionDate" /></td>
+						</tr>
+						<tr id="statusRow">
+							<td><label for="status">Status</label></td>
+							<td><select id='status' name='status' required>
+            					<?php
+                foreach ( $TAS_DB_MANAGER->getAvailableStatuses() as $status )
+                {
+                    printf( 
+                            "<option value='$status'" .
+                                     ( ( isset( $_POST['status'] ) && $_POST['status'] == $status ) ? "selected" : "" ) .
+                                     ">$status</option>" );
+                }
+                ?>
+            				</select></td>
+						</tr>
+						<tr id="blacklistedRow">
+							<td><label for="blacklisted">Blacklisted</label></td>
+							<td><input type="checkbox" id="blacklisted" name="blacklisted" /></td>
+						</tr>
                         <?php
                         if ( isset( $message ) )
                         {
@@ -118,17 +124,20 @@ echo templateHead( "Product $topicName Details",
                         }
                         ?>
                         <tr id="buttonsRow" class="permanent">
-                            <td></td>
-                            <td><input type="submit" id="updateFieldsButton" name="submitted"
-                                    value="Update With New Info"
-                                ></td>
-                        </tr>
-                    </tbody>
-                </table>
-            </div>
-        </form>
-    </div>
-    <span id="productId"><?= $topicName ?></span>
+							<td></td>
+							<td>
+								<p>
+									<input type="submit" id="updateFieldsButton" name="submitted"
+										value="Update With New Info">
+								</p>
+							</td>
+						</tr>
+					</tbody>
+				</table>
+			</div>
+		</form>
+	</div>
+	<span id="topicName"><?= $topicName ?></span>
 
 </body>
 

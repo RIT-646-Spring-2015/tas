@@ -19,3 +19,13 @@ span.status_REJECTED {
 .link a:hover {
 	background: lightgray;
 }
+
+.userFullName {
+	white-space: nowrap;
+	padding-left: 5px;
+}
+
+.blacklisted,
+.blacklisted:hover td {
+	background: gray !important;
+}

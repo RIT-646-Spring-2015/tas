@@ -29,10 +29,11 @@ foreach ( $course->getTopics() as $topicName => $username )
 {
     $topic = $TAS_DB_MANAGER->loadTopicByName( $topicName );
     $user = $TAS_DB_MANAGER->loadUserByUsername( $username );
-    $result['topics'][$username]['username'] = sprintf( '%s (%s %s)', $username, $user->getFirstName(), 
-            $user->getLastName() );
-    $result['topics'][$username]['topic'] = $topicName;
-    $result['topics'][$username]['status'] = $topic->getStatus();
+    $result['topics'][$topicName]['username'] = sprintf( '%s (%s %s)', $username, 
+            $user->getFirstName(), $user->getLastName() );
+    $result['topics'][$topicName]['topic'] = $topicName;
+    $result['topics'][$topicName]['status'] = $topic->getStatus();
+    $result['topics'][$topicName]['blacklisted'] = $topic->isBlacklisted();
 }
 
 header( 'Content-Type: application/json' );
