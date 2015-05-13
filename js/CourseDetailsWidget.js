@@ -231,7 +231,7 @@ var CourseDetailsWidget = function()
                         }
                     });
                 });
-            });
+            }).fail(function(resp){console.error(resp.responseText);});
         }
 
         function removeUsers()

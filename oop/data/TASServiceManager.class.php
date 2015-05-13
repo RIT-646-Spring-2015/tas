@@ -379,57 +379,63 @@ class TASServiceManager
         
         try
         {
-            $error = false;
-            /*
-             * if the user being added is not the current user, and the current user is a
-             * professor: OK
-             */
-            if ( $username != $user->getUsername() &&
-                     array_key_exists( $user->getUsername(), $enrolled ) &&
-                     $enrolled[$user->getUsername()] == self::ROLE_PROFESSOR )
+            try
             {
-                goto goodToGo;
-            } else
+                // if the current user is an admin: OK
+                $this->failIfNotAdmin();
+            } catch ( Exception $e )
             {
-                $error = true;
+                
+                $error = false;
+                /*
+                 * if the user being added is not the current user, and the current user is a
+                 * professor: OK
+                 */
+                if ( $username != $user->getUsername() &&
+                         array_key_exists( $user->getUsername(), $enrolled ) &&
+                         $enrolled[$user->getUsername()] == self::ROLE_PROFESSOR )
+                {
+                    goto goodToGo;
+                } else
+                {
+                    $error = true;
+                }
+                
+                /*
+                 * if the user being added is not the current user, and the current user is a TA,
+                 * and the user is being added a student: OK
+                 */
+                if ( $username != $user->getUsername() &&
+                         array_key_exists( $user->getUsername(), $enrolled ) &&
+                         $enrolled[$user->getUsername()] == self::ROLE_TA &&
+                         $role == self::ROLE_STUDENT )
+                {
+                    goto goodToGo;
+                } else
+                {
+                    $error = true;
+                }
+                
+                /*
+                 * if the user being added is the current user, and the user is being added as a
+                 * student: OK
+                 */
+                if ( $username == $user->getUsername() && $role == self::ROLE_STUDENT )
+                {
+                    goto goodToGo;
+                } else
+                {
+                    $error = true;
+                }
+                
+                if ( $error )
+                {
+                    die( 'Non TA/Professor cannot add him/herself to course as non-student' );
+                }
             }
-            
-            /*
-             * if the user being added is not the current user, and the current user is a TA,
-             * and the user is being added a student: OK
-             */
-            if ( $username != $user->getUsername() &&
-                     array_key_exists( $user->getUsername(), $enrolled ) &&
-                     $enrolled[$user->getUsername()] == self::ROLE_TA && $role == self::ROLE_STUDENT )
-            {
-                goto goodToGo;
-            } else
-            {
-                $error = true;
-            }
-            
-            /*
-             * if the user being added is the current user, and the user is being added as a
-             * student: OK
-             */
-            if ( $username == $user->getUsername() && $role == self::ROLE_STUDENT )
-            {
-                goto goodToGo;
-            } else
-            {
-                $error = true;
-            }
-            
-            if ( $error )
-            {
-                die( 'Non TA/Professor cannot add him/herself to course as non-student' );
-            }
-            
-            // if the current user is an admin: OK
-            $this->failIfNotAdmin();
             
             // if the user is not already enrolled in the course: OK
-            if ( !array_key_exists( $user->getUsername(), $enrolled ) )
+            if ( array_key_exists( $user->getUsername(), $enrolled ) )
             {
                 die( 'user is already enrolled in course' );
             }

@@ -12,7 +12,7 @@ final class User extends UserDetails
         parent::__construct( $username, $password, $firstname, $lastname, $email, $date_joined, 
                 $last_online, $enabled, $authorities );
         
-        $this->$coursesEnrolledIn = $coursesEnrolledIn;
+        $this->coursesEnrolledIn = $coursesEnrolledIn;
     }
 
     public function &getCoursesEnrolledIn()

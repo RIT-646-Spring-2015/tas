@@ -37,13 +37,11 @@ final class UserMapper
                 $inUser = &$results[$user->getUsername()];
                 
                 $auths = &$inUser->getAuthorities();
-                $auths = array_merge( $auths, $user->getAuthorities() );
-                $auths = array_unique( $auths );
+                $auths = array_merge_recursive_distinct( $auths, $user->getAuthorities() );
                 
                 // courses merge
                 $courses = &$inUser->getAuthorities();
-                $courses = array_merge( $courses, $user->getCoursesEnrolledIn() );
-                $courses = array_unique( $courses );
+                $courses = array_merge_recursive_distinct( $courses, $user->getCoursesEnrolledIn() );
             } else
             {
                 $results[$user->getUsername()] = $user;

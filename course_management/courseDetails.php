@@ -37,7 +37,7 @@ if ( $_SERVER['REQUEST_METHOD'] == 'POST' )
         // SUBMIT A CHANGE
         $TAS_DB_MANAGER->updateCourse( $course );
         
-        header( 'Location: ./' );
+        header( 'Location: ./courseDetails.php?' . $_SERVER['QUERY_STRING'] );
         die();
     }
     
