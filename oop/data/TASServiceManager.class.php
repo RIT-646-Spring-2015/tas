@@ -76,6 +76,10 @@ class TASServiceManager
 
     /**
      */
+    const NEW_TOPIC_SQL = 'INSERT INTO Topic (Name, SubmittingUsername, CourseNumber, Link) VALUES ( ?, ?, ?, ? );';
+
+    /**
+     */
     const DELETE_USER_SQL = 'DELETE FROM User WHERE Username = ?;';
 
     /**
@@ -93,6 +97,10 @@ class TASServiceManager
     /**
      */
     const DELETE_USER_COURSE_SQL = 'DELETE FROM UserCourse WHERE Username = ? AND CourseNumber = ?;';
+
+    /**
+     */
+    const DELETE_TOPIC_SQL = 'DELETE FROM Topic WHERE Name = ?;';
 
     /**
      */
@@ -191,13 +199,15 @@ class TASServiceManager
                 }, $stmt );
     }
 
-    public function createTopic( TopicForm $course )
+    public function createTopic( TopicForm $topic )
     {
-        $stmt = $this->getDB()->prepare( self::NEW_COURSE_SQL );
+        $stmt = $this->getDB()->prepare( self::NEW_TOPIC_SQL );
         PreparedStatementSetter::setValuesAndExecute( 
-                function ( SQLite3Stmt &$ps ) use($course ) {
-                    $ps->bindValue( 1, $course->getNumber(), SQLITE3_TEXT );
-                    $ps->bindValue( 2, sha1( $course->getName() ), SQLITE3_TEXT );
+                function ( SQLite3Stmt &$ps ) use($topic ) {
+                    $ps->bindValue( 1, $topic->getName(), SQLITE3_TEXT );
+                    $ps->bindValue( 2, $topic->getSubmittingUsername(), SQLITE3_TEXT );
+                    $ps->bindValue( 3, $topic->getCourseNumber(), SQLITE3_TEXT );
+                    $ps->bindValue( 4, $topic->getLink(), SQLITE3_TEXT );
                 }, $stmt );
     }
 
@@ -262,7 +272,7 @@ class TASServiceManager
     {
         if ( $this->getCurrentUser()->getUsername() != $topic->getSubmittingUsername() )
         {
-            $this->gailIfNotAdmin( 
+            $this->failIfNotAdmin( 
                     'To update a topic, you must be the one who submitted the topic or be an administrator.' );
         }
         
@@ -297,8 +307,14 @@ class TASServiceManager
             }
             
             // Remove this user's topic proposals
+            foreach ( $TAS_DB_MANAGER->getTopics() as $topic )
+            {
+                if ( $topic->getSubmittingUser() == $username )
+                {
+                    $this->deleteTopic( $topic->getName() );
+                }
+            }
             
-
             $this->deleteUserAuthorities( $username );
             
             $stmt = $this->getDB()->prepare( self::DELETE_USER_SQL );
@@ -320,7 +336,9 @@ class TASServiceManager
         foreach ( $course->getEnrolled() as $username )
             $this->removeUserFromCourse( $username, $courseNumber );
             
-            // TODO delete all topics for a course
+            // delete all topics for a course
+        foreach ( $course->getTopics() as $topicName )
+            $this->deleteTopic( $topicName );
         
         try
         {
@@ -336,11 +354,84 @@ class TASServiceManager
         }
     }
 
-    public function addUserToCourse( $username, $courseNumber, $role )
+    public function deleteTopic( $topicName )
     {
+        // Get the topic to delete
+        $topic = $this->loadTopicByName( $topicName );
+        
         try
         {
+            if ( $this->getCurrentUser()->getUsername() != $topic->getSubmittingUsername() )
+                $this->failIfNotAdmin();
+            
+            $stmt = $this->getDB()->prepare( self::DELETE_TOPIC_SQL );
+            $stmt->bindParam( 1, $topicName, SQLITE3_TEXT );
+            
+            $stmt->execute();
+        } catch ( Exception $e )
+        {
+            echo $e->getMessage();
+        }
+    }
+
+    public function addUserToCourse( $username, $courseNumber, $role )
+    {
+        $user = $this->getCurrentUser();
+        $course = $this->loadCourseByNumber( $courseNumber );
+        $enrolled = $course->getEnrolled();
+        
+        try
+        {
+            $error = false;
+            // if the user being added is not the current user, and the current user is a
+            // professor: OK
+            if ( $username != $user->getUsername() &&
+                     array_key_exists( $user->getUsername(), $enrolled ) &&
+                     $enrolled[$user->getUsername()] == self::ROLE_PROFESSOR )
+            {
+                goto goodToGo;
+            } else
+            {
+                $error = true;
+            }
+            
+            // if the user being added is not the current user, and the current user is a TA,
+            // and the user is being added a student: OK
+            if ( $username != $user->getUsername() &&
+                     array_key_exists( $user->getUsername(), $enrolled ) &&
+                     $enrolled[$user->getUsername()] == self::ROLE_TA && $role == self::ROLE_STUDENT )
+            {
+                goto goodToGo;
+            } else
+            {
+                $error = true;
+            }
+            
+            // if the user being added is the current user, and the user is being added as a
+            // student: OK
+            if ( $username == $user->getUsername() && $role == self::ROLE_STUDENT )
+            {
+                goto goodToGo;
+            } else
+            {
+                $error = true;
+            }
+            
+            if ( $error )
+            {
+                die( 'Non TA/Professor cannot add him/herself to course as non-student' );
+            }
+            
+            // if the current user is an admin: OK
             $this->failIfNotAdmin();
+            
+            // if the user is not already enrolled in the course: OK
+            if ( !array_key_exists( $user->getUsername(), $enrolled ) )
+            {
+                die( 'user is already enrolled in course' );
+            }
+            
+            goodToGo:
             
             $stmt = $this->getDB()->prepare( self::NEW_USER_COURSE_SQL );
             $stmt->bindParam( 1, $username, SQLITE3_TEXT );
@@ -356,9 +447,16 @@ class TASServiceManager
 
     public function removeUserFromCourse( $username, $courseNumber )
     {
+        $user = $this->getCurrentUser();
+        $course = $this->loadCourseByNumber( $courseNumber );
+        $enrolled = $course->getEnrolled();
+        
         try
         {
-            $this->failIfNotAdmin();
+            if ( !array_key_exists( $username, $course->getEnrolled() ) && ( array_key_exists( 
+                    $user->getUsername(), $enrolled ) &&
+                     !$enrolled[$user->getUsername()] != self::ROLE_PROFESSOR ) )
+                $this->failIfNotAdmin();
             
             $stmt = $this->getDB()->prepare( self::DELETE_USER_COURSE_SQL );
             $stmt->bindParam( 1, $username, SQLITE3_TEXT );
@@ -375,8 +473,8 @@ class TASServiceManager
     {
         $currentUser = $this->getCurrentUser();
         
-        if ( $currentUser->getUsername() != $username &&
-                 !$currentUser->hasAuthority( self::AUTHORITY_ADMIN ) )
+        if ( $currentUser->getUsername() != $username && !$currentUser->hasAuthority( 
+                self::AUTHORITY_ADMIN ) )
         {
             throw new Exception( 'You do not have the authority to delete someone else\'s topic' );
         }
@@ -450,6 +548,11 @@ class TASServiceManager
     public function getCourses()
     {
         return CourseMapper::extractData( $this->getDB()->query( self::SELECT_ALL_COURSES_SQL ) );
+    }
+
+    public function getTopics()
+    {
+        return TopicMapper::extractData( $this->getDB()->query( self::SELECT_ALL_TOPICS_SQL ) );
     }
 
     public function getAvailableAuthorities()

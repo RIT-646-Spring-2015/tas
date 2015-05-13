@@ -1,12 +1,12 @@
 // Wrap code with module pattern
-var ProductManagementWidget = function()
+var TopicManagementWidget = function()
 {
     var global = this;
 
     /////////////////////////////////
     // Widget Constructor Function //
     /////////////////////////////////
-    global.makeProductManagementWidget = function(parentElement)
+    global.makeTopicManagementWidget = function(parentElement)
     {
         //////////////////
         ///// Fields /////
@@ -14,152 +14,186 @@ var ProductManagementWidget = function()
 
         var container = parentElement;
 
-        var productTable = $("<table id='niceTable'><thead><tr id='niceTableHeader'>");
+        var user = $("#user").html() == "" ? undefined : $("#user").html();
 
-        var deleteProductsButton = $("<input id='deleteProducts' type='button' value='Delete Selected Products'>");
+        var courseNumber = $("#courseNumber").html() == "" ? undefined : $(
+        "#courseNumber").html();
 
-        var updateProductButton = $("<input id='updateProduct' type='button' value='Update Selected Product'>");
+        var topicTable = $("<table id='niceTable'><thead><tr id='niceTableHeader'>");
 
-        var addProductButton = $("<input id='addProduct' type='button' value='Add New Product'>");
+        var deleteTopicsButton = $("<input id='deleteTopics' type='button' value='Delete Selected Topics'>");
+
+        var updateTopicButton = $("<input id='updateTopic' type='button' value='Update Selected Topic'>");
+
+        var addTopicButton = $("<input id='addTopic' type='button' value='Add New Topic'>");
+
+        var tableHeaders = [ 'Topic Name', 'Username', 'Course Number', 'Link',
+            'Submission Date', 'Status', 'Blacklisted' ];
+
+        var topicRowTemplate = _
+        .template("<tr class='topicRow' topic='<%= name %>'> \
+               <td> \
+                 <input class='selectTopic' topic='<%= name %>' type='checkbox'><br> \
+                 <span><%= name %></span> \
+               </td> \
+               <td> \
+                 <span><%= username %></span> \
+               </td> \
+               <td> \
+                 <span><%= courseNumber %></span> \
+               </td> \
+               <td> \
+                 <span class='link'><a href=\"<%= link %>\"><%= link %></a></span> \
+               </td> \
+               <td> \
+                 <span><%= submissionDate %></span> \
+               </td> \
+               <td> \
+                 <span class='status_<%= status %>'><%= status %></span> \
+               </td> \
+               <td> \
+                 <span><%= blacklisted == 0? false:true %></span> \
+               </td></tr>");
 
         //////////////////////////////
         // Private Instance Methods //
         //////////////////////////////
-        function retrieveProducts(localAccess)
+        function retrieveTopics(localAccess)
         {
             $("#niceTable tbody tr").remove();
 
-            var products = paginationWidget.retrieveProducts( false, 0 );
-            
-            $.each( products,
-            function(i, product)
+            $.ajax({
+                async : false,
+                url : "retrieveTopics.php",
+                type : 'POST',
+                data : {
+                    username : user,
+                    courseNumber : courseNumber
+                }
+            }).done(
+            function(topics)
             {
-                product.Price /= 100;
-                product.Sale /= 100;
-                
-                $("#niceTable").append(
-                $("<tr class='productRow' title='" + product.Description +
-                    "' product='" + product.ProductId + "'>")
-                .append(
-                $("<td>").append(
-                $("<span>" + product.ProductId + "</span>").prepend(
-                $("<input class='selectProduct' product='" + product.ProductId
-                + "' type='checkbox'>")))).append(
-                $("<td><img height='95' width='120' src='"  + product.ImageSitePath + "'></img></td>")).append(
-                $("<td><span>"  + product.Name + "</span></td>")).append(
-                $("<td><span class='currency'>" + product.Price + "</span></td>")).append(
-                $("<td><span>"  + product.Quantity + "</span></td>")).append(
-                $("<td><span>"  + (product.OnSale?'true':'false') + "</span></td>")).append(
-                $("<td><span class='currency'>"  + product.Sale + "</span></td>")).append(
-                $("<td><span class='currency'>"  + ((product.OnSale? product.Sale : product.Price) * product.Quantity) + "</span></td>")));
-            });
+                if (topics.length <= 0)
+                    return;
 
-            ///////////////////////
-            // PRODUCT SELECTION //
-            ///////////////////////
-            $(".selectProduct").click(function(event)
-            {
-                event.stopPropagation();
-                var productId = $(this).attr("product");
-                $(".productRow[product='" + productId + "']").toggleClass("selected");
-                updateClickabilityOfButtons();
-            });
-
-            $(".productRow").children().click(function()
-            {
-                var productId = $(this).parent().attr("product");
-                $(".selectProduct[product='" + productId + "']").click();
-            });
-
-            if (localAccess === true )
-            {
-                $("#niceTable").tablesorter({
-                    sortList : [ [ 0, 0 ] ]
+                $.each(topics, function(topicName, topic)
+                {
+                    $("#niceTable").append(topicRowTemplate(topic));
                 });
-            }
 
-            $("#niceTable").trigger("update");
+                //////////////////////
+                // TOPIC SELECTION //
+                //////////////////////
+                $(".selectTopic").click(
+                function(event)
+                {
+                    event.stopPropagation();
+                    var topic = $(this).attr("topic");
+                    $(".topicRow[topic='" + topic + "']").toggleClass(
+                    "selected");
+                    updateClickabilityOfButtons();
+                });
 
+                $(".topicRow").children().click(function()
+                {
+                    var topic = $(this).parent().attr("topic");
+                    $(".selectTopic[topic='" + topic + "']").click();
+                });
+
+                if (localAccess === true)
+                {
+                    $("#niceTable").tablesorter({
+                        sortList : [ [ 0, 0 ] ]
+                    });
+                }
+
+                $("#niceTable").trigger("update");
+
+            }).fail(function(message)
+            {
+                console.error(message.responseText);
+            });
 
             updateClickabilityOfButtons();
         }
 
-        function deleteProducts()
+        function deleteTopics()
         {
-            if (confirm("Are you sure you want to delete these products?"))
+            if (confirm("Are you sure you want to delete these topics?"))
             {
-                $
-                .each(
-                _.map($(".selectProduct:checked"), function(checkbox)
+                $.each(_.map($(".selectTopic:checked"), function(checkbox)
                 {
-                    var productId = $(checkbox).attr("product");
-                    return $(".productRow[product=" + productId + "]");
-                }),
-                function(i, product)
+                    var topicName = $(checkbox).attr("topic");
+                    return $(".topicRow[topic='" + topicName + "']");
+                }), function(i, topic)
                 {
                     $.ajax({
                         async : false,
-                        url : "product_management/deleteProduct.php",
-                        data: {productId : $(product).attr("product") },
+                        url : "deleteTopic.php",
+                        data : {
+                            topicName : $(topic).attr("topic")
+                        },
                         type : "POST"
-                    }).done(retrieveProducts);
+                    }).done(retrieveTopics);
                 });
             }
         }
 
-        function updateProduct()
+        function updateTopic()
         {
-            var productId = $(".selectProduct:checked").attr("product");
-            location = "product_management/productDetails.php?productId=" + productId;
+            var topicName = $(".selectTopic:checked").attr("topic");
+            location = "topic_management/topicDetails.php?topicName="
+            + topicName;
         }
 
         function updateClickabilityOfButtons()
         {
-            switch ($(".selectProduct:checked").length)
+            switch ($(".selectTopic:checked").length)
             {
                 case 0:
-                    deleteProductsButton.prop("disabled", true);
-                    updateProductButton.prop("disabled", true);
+                    deleteTopicsButton.prop("disabled", true);
+                    updateTopicButton.prop("disabled", true);
                     break;
                 case 1:
-                    deleteProductsButton.prop("disabled", false);
-                    updateProductButton.prop("disabled", false);
+                    deleteTopicsButton.prop("disabled", false);
+                    updateTopicButton.prop("disabled", false);
                     break;
                 default:
-                    deleteProductsButton.prop("disabled", false);
-                    updateProductButton.prop("disabled", true);
+                    deleteTopicsButton.prop("disabled", false);
+                    updateTopicButton.prop("disabled", true);
             }
         }
         //////////////////////////////////////////
         // Find Pieces and Enliven DOM Fragment //
         //////////////////////////////////////////
-        container.append($("<div>").append(productTable).attr("id",
+        container.append($("<div>").append(topicTable).attr("id",
         "nice_tableBlock"));
 
-        $("#niceTableHeader").append($("<th class='header'>ProductId</th>"))
-        .append($("<th class='header'>Product Image</th>")).append(
-        $("<th class='header'>Product Name</th>")).append(
-        $("<th class='header'>Retail Price</th>")).append(
-        $("<th class='header'>Quantity in Stock</th>")).append(
-        $("<th class='header'>On Sale</th>")).append(
-        $("<th class='header'>Sale Price</th>")).append(
-        $("<th class='header'>Potential Income</th>"));
+        $.each(tableHeaders, function()
+        {
+            $("#niceTableHeader").append(
+            $("<th class='header'>" + this + "</th>"));
+        });
 
         $("#niceTable").append($("<tbody>"));
 
-        retrieveProducts(true);
+        retrieveTopics(true);
 
         //////////////////////////
         // PRODUCT MODIFICATION //
         //////////////////////////
-        deleteProductsButton.click(deleteProducts);
+        deleteTopicsButton.click(deleteTopics);
 
-        updateProductButton.click(updateProduct);
+        updateTopicButton.click(updateTopic);
 
-        addProductButton.click( function(){ location = 'product_management/addProduct.php' } );
+        addTopicButton.click(function()
+        {
+            location = 'addTopic.php?' + ((user) ? ('username=' + user) : '')
+            + ((courseNumber) ? ('courseNumber=' + courseNumber) : '');
+        });
 
-        $("#nice_tableBlock").append(deleteProductsButton)
-        .append(updateProductButton).append(addProductButton);
+        $("#nice_tableBlock").append(deleteTopicsButton).append(
+        updateTopicButton).append(addTopicButton);
 
         /////////////////////////////
         // Public Instance Methods //
@@ -171,7 +205,7 @@ var ProductManagementWidget = function()
             },
             refresh : function()
             {
-                retrieveProducts(false);
+                retrieveTopics(false);
             },
             log : function(message)
             {
@@ -183,5 +217,5 @@ var ProductManagementWidget = function()
 
 $(document).ready(function()
 {
-    productManagementWidget = makeProductManagementWidget($("#admin"));
+    topicManagementWidget = makeTopicManagementWidget($("#content"));
 });

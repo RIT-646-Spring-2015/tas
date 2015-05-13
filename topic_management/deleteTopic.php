@@ -3,10 +3,10 @@ require_once '../lib/lib_tas.php';
 
 redirectIfLoggedOut();
 
-$productId = $_POST['productId'];
+$topicName = $_POST['topicName'];
 
-echo $productId;
+echo $topicName;
 
-$PRODUCT_DB_MANAGER->deleteProduct( $productId );
+$TAS_DB_MANAGER->deleteTopic( $topicName );
 
 ?>

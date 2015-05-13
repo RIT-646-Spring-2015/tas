@@ -32,7 +32,7 @@ define( 'USERMANAGEMENT_OPTION',
                  '/user_management"><span>Manage Users</span></a>' );
 define( 'TOPICMANAGEMENT_OPTION', 
         '<a id="topicManagementOption" href="' . SITE_ROOT .
-                 '/topic_management%s"><span>Manage Topics</span></a>' );
+                 '/topic_management"><span>Manage Topics</span></a>' );
 define( 'COURSEMANAGEMENT_OPTION', 
         '<a id="courseManagementOption" href="' . SITE_ROOT .
                  '/course_management"><span>Manage Courses</span></a>' );

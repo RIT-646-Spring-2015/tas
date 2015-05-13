@@ -14,19 +14,17 @@ class TopicFormValidator
         $errors = array ();
         self::validates( $errors, $topic->getName(), 'Topic name required.' );
         self::validates( $errors, $topic->getLink(), 'Link required.' );
-        self::validates( $errors, $topic->getSubmissionDate(), 'Submission Date required.' );
-        self::validates( $errors, $topic->getStatus(), 'Status required.' );
         
         return $errors;
     }
 
-    public static function validate( TopicForm $product )
+    public static function validate( TopicForm $topic )
     {
         global $TAS_DB_MANAGER;
         
         $errors = array ();
         
-        // Validate Product Name
+        // Validate Topic Name
         if ( !preg_match( '/[\w\p{P}\s{1}:]{3,60}$/', $topic->getName() ) )
         {
             $errors[] .= 'Topic name must only be 3 to 60 characters';
@@ -38,13 +36,32 @@ class TopicFormValidator
             $errors[] .= 'Link must be less than 500 characters';
         }
         
-        // Validate Status
-        $statuses = $TAS_DB_MANAGER->getAvailableStatuses();
-        if ( !in_array( $topic->getStatus(), $statuses ) )
+        try
         {
-            $errors[] .= sprintf( 'Status=%s| Status must only be one of the following: [%s].', 
-                    $topic->getStatus(), implode( ', ', $statuses ) );
+            // Validate user exists
+            $user = $TAS_DB_MANAGER->loadUserByUsername( $topic->getSubmittingUsername() );
+            // Validate Course exists
+            $course = $TAS_DB_MANAGER->loadCourseByNumber( $topic->getCourseNumber() );
+            // Validate User is in course
+            if ( !array_key_exists( $user->getUsername(), $course->getEnrolled() ) )
+            {
+                $errors[] .= sprintf( 'User: \'%s\' is not enrolled in Course: \'%s\'', 
+                        $user->getUsername(), $course->getNumber() );
+            }
+        } catch ( Exception $e )
+        {
+            $errors[] .= $e->getMessage();
         }
+        
+        /*
+         * Validate Status
+         * $statuses = $TAS_DB_MANAGER->getAvailableStatuses();
+         * if ( !in_array( $topic->getStatus(), $statuses ) )
+         * {
+         * $errors[] .= sprintf( 'Status=%s| Status must only be one of the following: [%s].',
+         * $topic->getStatus(), implode( ', ', $statuses ) );
+         * }
+         */
         
         return $errors;
     }

@@ -1,0 +1,93 @@
+@CHARSET "UTF-8";
+
+#buttonsRow p {
+	text-align: center;
+}
+
+#topics p {
+	text-align: left;
+}
+
+.roleHeader {
+	margin: 0;
+	padding 15px;
+	background: #D00;
+	border: 1px black solid;
+	font-weight: normal;
+	text-align: center;
+}
+
+p.roster {
+	margin: 0 0 0 10px;
+	text-align: left;
+	padding: 0 0 0 10px;
+
+	text-indent: -10px;
+	display: table-caption;
+}
+
+input:not([type='checkbox']):not([type='radio']) {
+	width: 20em;
+}
+
+td#enrolled > div {
+	text-align: left;
+	display: inline-block;
+	height: 100%;
+}
+
+div#studentsEnrolled {
+	width: 70%;
+}
+
+div#modifyEnrolled {
+	width: 28%;
+}
+
+div#modifyEnrolled input {
+	height: 50%;
+	width: 100%;
+}
+
+div#studentsEnrolled > div{
+	display: flex;
+}
+
+div#userList {
+	display: inline-block;
+}
+
+div.userAddBlock, div.userAddBlock * {
+	text-align: left;
+}
+
+p.userAdd {
+	border: 1px black solid;
+	background: white;
+	cursor: copy;
+}
+
+td#topics table {
+	border-collapse: collapse;
+}
+
+td#topics table th {
+	text-align: center;
+	background: lightblue;
+}
+
+td#topics table th, td#topics table td {
+	border: 1px black solid;
+}
+
+td.status_SUBMITTED {
+	background: orange;
+}
+
+td.status_APPROVED {
+	background: lightgreen;
+}
+
+td.status_REJECTED {
+	background: pink;
+}

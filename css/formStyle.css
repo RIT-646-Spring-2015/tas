@@ -16,11 +16,17 @@ form p input[type=password],
 form p input[type=email],
 form p input[type=number],
 form p input[type=file],
+form p input[type=url],
+form p select,
 form p textarea {
     float: right;
     width: 14em;
     padding-left: 5px;
     margin-left: 5px;
+}
+
+form p select {
+	width: 14.65em;
 }
 
 form p textarea {

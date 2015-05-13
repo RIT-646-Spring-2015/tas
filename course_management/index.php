@@ -16,7 +16,7 @@ echo templateHead( "Course Management", array ( '/css/managementStyle.css' ),
 ?>
 
 <body>
-    <?= templateHeader( true, true, true, false, true )?>
+    <?= templateHeader( true, true, true, true, true )?>
     <div id="content"></div>
 </body>
 <span id="user"><?= isset($_GET['username'])? $username:''?></span>

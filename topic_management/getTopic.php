@@ -3,19 +3,19 @@ require_once '../lib/lib_tas.php';
 
 redirectIfLoggedOut();
 
-$productId = $_POST['productId'];
+$result = array ();
 
-$user = $PRODUCT_DB_MANAGER->loadProductByProductId( $productId );
+$topicName = $_POST['topicName'];
 
-    $result['productId'] = $user->getProductId();
-    $result['product_name'] = $user->getName();
-    $result['price'] = $user->getPrice();
-    $result['quantity'] = $user->getQuantity();
-    $result['onSale'] = $user->isOnSale()? 'true':'false';
-    $result['sale'] = $user->getSalePrice();
-    $result['description'] = $user->getDescription();
-    $result['imagePath'] = $user->getImagePath();
-    $result['imageSitePath'] = $user->getImageSitePath();
+$topic = $TAS_DB_MANAGER->loadTopicByName( $topicName );
+
+    $result['name'] = $topic->getName();
+    $result['username'] = $topic->getSubmittingUsername();
+    $result['courseNumber'] = $topic->getCourseNumber();
+    $result['link'] = $topic->getLink();
+    $result['submissionDate'] = $topic->getSubmissionDate();
+    $result['status'] = $topic->getStatus();
+    $result['blacklisted'] = $topic->isBlacklisted();
 
     
 header('Content-Type: application/json');

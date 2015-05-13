@@ -3,13 +3,13 @@ require_once '../lib/lib_tas.php';
 
 redirectIfLoggedOut();
 
-$productId = $_GET['productId'];
+$topicName = $_GET['topicName'];
 
-// See if product exists
+// See if topic exists
 try
 {
-    $PRODUCT_DB_MANAGER->loadProductByProductId( $productId );
-} catch ( ProductNotFoundException $e )
+    $TAS_DB_MANAGER->loadTopicByName( $topicName );
+} catch ( TopicNotFoundException $e )
 {
     echo $e->getMessage();
     die();
@@ -30,9 +30,9 @@ if ( $_SERVER['REQUEST_METHOD'] == 'POST' )
     // Product Image
     $image_file = !empty( $_FILES['imagePath']['name'] ) ? PRODUCT_IMAGE_DIR .
              basename( $_FILES['imagePath']['name'] ) : $PRODUCT_DB_MANAGER->loadProductByProductId( 
-                    $productId )->getImagePath();
+                    $topicName )->getImagePath();
 
-    $product = new ProductForm( $productId, $_POST['product_name'], $_POST['description'], 
+    $product = new ProductForm( $topicName, $_POST['product_name'], $_POST['description'], 
             $_POST['price'], $_POST['quantity'], $_POST['onSale'], $_POST['sale'], $image_file );
 
     $errors = array ();
@@ -66,7 +66,7 @@ if ( $_SERVER['REQUEST_METHOD'] == 'POST' )
 <html lang="EN">
 
 <?php
-echo templateHead( "Product $productId Details", 
+echo templateHead( "Product $topicName Details", 
         array ( '../css/formStyle.css', '../css/detailsStyle.css' ), 
         array ( '../js/lib/jquery.tablesorter.js', '../js/lib/underscore-min.js', 
                         '../js/lib/jquery.formatCurrency-1.4.0.min.js', '../js/FormWidget.js', 
@@ -128,7 +128,7 @@ echo templateHead( "Product $productId Details",
             </div>
         </form>
     </div>
-    <span id="productId"><?= $productId ?></span>
+    <span id="productId"><?= $topicName ?></span>
 
 </body>
 

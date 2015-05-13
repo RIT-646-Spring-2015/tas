@@ -139,12 +139,12 @@ var CourseDetailsWidget = function()
 
         function addUsers()
         {
-            if ( $("div#userList").length > 0 )
+            if ($("div#userList").length > 0)
             {
                 $("div#userList").remove();
                 return;
             }
-            
+
             $("div#userList").remove();
             var courseNumber = $("#courseNumber").html();
 
@@ -212,6 +212,14 @@ var CourseDetailsWidget = function()
                     {
                         getDetails();
                         $("div#userList").remove();
+                    }).fail(
+                    function(message)
+                    {
+                        if (message.responseText
+                        && message.responseText != "null")
+                        {
+                            alert(message.responseText);
+                        }
                     });
                 });
             });
@@ -228,7 +236,11 @@ var CourseDetailsWidget = function()
                         username : username,
                         courseNumber : $("#courseNumber").html()
                     }
-                }).done(getDetails);
+                }).done(function()
+                {
+                    getDetails();
+                    $("div#userList").remove();
+                });
             });
         }
         //////////////////////////////////////////

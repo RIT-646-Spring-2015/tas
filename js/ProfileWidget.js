@@ -25,7 +25,8 @@ var ProfileWidget = function()
         .append($("<p><a href=\"./userDetails.php\">Update Your Info</a>"));
         container.append($("<p><a href=\"../course_management?username="
         + $("#user").html() + "\">View Your Courses</a>"));
-        container.append($("<p><a href=\"./\">View Your Topics</a>"));
+        container.append($("<p><a href=\"../topic_management?username="
+        + $("#user").html() + "\">View Your Topics</a>"));
 
         /////////////////////////////
         // Public Instance Methods //

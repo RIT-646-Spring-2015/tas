@@ -45,7 +45,7 @@ var CourseManagementWidget = function()
                 <% $.each( topics, function(topicName, username) { %> \
                   <p><%= topicName %>: <%= username %></p> \
                 <% }); %> \
-              </td>");
+              </td></tr>");
 
         //////////////////////////////
         // Private Instance Methods //

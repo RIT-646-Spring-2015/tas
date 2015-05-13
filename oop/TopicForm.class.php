@@ -4,11 +4,10 @@ include_once 'TopicDetails.class.php';
 final class TopicForm extends TopicDetails
 {
 
-    public function __construct( $name, $submittingUsername, $courseNumber, $link, $submissionDate, 
-            $blacklisted, $status )
+    public function __construct( $name, $submittingUsername, $courseNumber, $link )
     {
-        parent::__construct( $name, $link, $submittingUsername, $courseNumber, $submissionDate, 
-                $blacklisted, $status );
+        parent::__construct( $name, $submittingUsername, $courseNumber, $link, "", 
+                "", "" );
     }
 
     /**

@@ -1,0 +1,21 @@
+@CHARSET "UTF-8";
+
+span.status_SUBMITTED {
+	background: orange;
+}
+
+span.status_APPROVED {
+	background: lightgreen;
+}
+
+span.status_REJECTED {
+	background: pink;
+}
+
+.link {
+	word-break: break-all;
+}
+
+.link a:hover {
+	background: lightgray;
+}
